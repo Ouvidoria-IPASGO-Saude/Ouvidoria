@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<!--
+  ============================================================
+  PAINEL EXECUTIVO DE DEMANDAS — OUVIDORIA · 16 A 23/11/2026
+  ============================================================
+  Fonte: 16 a 23.xlsx · aba "16 a 23" (269 registros)
+  Total real: 269 demandas
+
+  Agregados recalculados a partir das 269 linhas:
+  - Dentro do prazo: 247 (91,8%) · Fora do prazo: 21 (7,8%) · Sem registro: 1 (0,4%)
+  - Assuntos (Top 10): AUDITORIA AUTORIZATIVA 58 · AGENDAMENTO DE CONSULTA 30 ·
+    PROGRAMAS ESPECIAIS DE ASSISTÊNCIA 24 · CADASTRO DE BENEFICIÁRIO 18 ·
+    FATURAMENTO PRESTADOR 12 · AGENDAMENTO DE PROCEDIMENTO 9 ·
+    QUALIDADE DO SERVIÇO PRESTADO 8 · REEMBOLSO DE DESPESA MÉDICA 8 ·
+    COBRANÇA INDEVIDA DO PRESTADOR 8 · COBERTURA DE PROCEDIMENTO 8
+  - Áreas-mãe (Top 10): COARA 63 · COGAT 58 · CODIN 35 · COPRE 32 · COPES 16 ·
+    CORET 14 · GEFAC 13 · COARR 11 · CONEG 8 · COGER 3
+  ============================================================
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Executivo de Demandas · 16–23/11/2026</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+<style>
+:root{
+  --petrol:#1b4332; --forest:#2d6a4f; --emerald:#40916c; --leaf:#52b788;
+  --mint-mid:#95d5b2; --mint:#b7e4c7; --mint-soft:#d8f3dc; --mint-bg:#f3f8f4;
+  --ink:#0f2419; --ink-soft:#3a5a48; --muted:#6b8a79; --line:#e3efe7; --card:#ffffff;
+  --up:#b23a34; --up-bg:#fbe6e4; --down:#2d6a4f; --down-bg:#d8f3dc;
+  --flat:#6b8a79; --flat-bg:#eef3f0;
+  --radius:18px; --radius-sm:12px;
+  --shadow:0 4px 20px rgba(27,67,50,.07);
+  --shadow-lg:0 12px 36px rgba(27,67,50,.13);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--mint-bg); color:var(--ink); line-height:1.55;
+  -webkit-font-smoothing:antialiased; padding-bottom:56px;
+}
+
+.header{
+  position:relative;
+  background:linear-gradient(125deg,#142f23 0%,var(--petrol) 38%,var(--forest) 78%,var(--emerald) 130%);
+  color:#fff; padding:44px 40px 88px; overflow:hidden;
+}
+.header::before{
+  content:''; position:absolute; width:520px;height:520px; border-radius:50%;
+  background:radial-gradient(circle,rgba(149,213,178,.22),transparent 68%);
+  top:-260px;right:-140px;
+}
+.header::after{
+  content:''; position:absolute; width:340px;height:340px; border-radius:50%;
+  background:radial-gradient(circle,rgba(216,243,220,.14),transparent 70%);
+  bottom:-200px;left:-90px;
+}
+.ipasgo-logo{
+  position:absolute; top:0; right:0; height:100%; max-height:110px; width:auto;
+  object-fit:contain; mix-blend-mode:multiply; border-bottom-left-radius:24px;
+  z-index:10; pointer-events:none;
+}
+.header-inner{
+  position:relative; z-index:2; max-width:1440px; margin:0 auto;
+  display:flex; flex-wrap:wrap; gap:28px; align-items:flex-start;
+  justify-content:space-between; padding-right:120px;
+}
+.header-eyebrow{
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(216,243,220,.15); border:1px solid rgba(216,243,220,.28);
+  color:var(--mint-soft); font-size:11.5px; font-weight:600;
+  letter-spacing:.11em; text-transform:uppercase; padding:7px 15px;
+  border-radius:100px; margin-bottom:18px; backdrop-filter:blur(4px);
+}
+.header-eyebrow svg{width:14px;height:14px}
+.header h1{
+  font-size:clamp(26px,3.4vw,40px); font-weight:800;
+  letter-spacing:-.025em; line-height:1.15; margin-bottom:12px;
+}
+.header h1 span{
+  background:linear-gradient(90deg,var(--mint),var(--mint-mid));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.header p{font-size:15px; color:rgba(216,243,220,.82); max-width:680px; font-weight:400}
+.header-period{
+  display:flex; align-items:center; gap:14px;
+  background:rgba(255,255,255,.09); border:1px solid rgba(216,243,220,.22);
+  border-radius:var(--radius); padding:16px 22px;
+  backdrop-filter:blur(8px); flex-shrink:0;
+}
+.header-period .hp-icon{
+  width:42px;height:42px; border-radius:12px;
+  background:rgba(216,243,220,.16); display:grid;place-items:center; color:var(--mint);
+}
+.header-period .hp-label{
+  font-size:10.5px; text-transform:uppercase; letter-spacing:.13em;
+  color:rgba(216,243,220,.68); font-weight:600;
+}
+.header-period .hp-value{
+  font-size:16.5px; font-weight:700; color:#fff; letter-spacing:-.01em;
+}
+.header-period .hp-value em{font-style:normal; color:var(--mint-mid); margin:0 4px}
+
+.container{max-width:1440px; margin:-58px auto 0; padding:0 40px; position:relative; z-index:5}
+.section{margin-bottom:44px}
+.section-head{display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap}
+.section-head h2{
+  font-size:19px; font-weight:700; letter-spacing:-.015em;
+  color:var(--petrol); display:flex; align-items:center; gap:10px;
+}
+.section-head h2 svg{width:19px;height:19px; color:var(--emerald)}
+.section-head .rule{flex:1; height:1px; background:linear-gradient(90deg,var(--line),transparent); min-width:30px}
+.section-head .hint{font-size:12.5px; color:var(--muted); font-weight:500}
+
+.kpi-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:18px}
+.kpi{
+  background:var(--card); border-radius:var(--radius);
+  padding:22px 22px 20px; box-shadow:var(--shadow);
+  border:1px solid rgba(227,239,231,.9); position:relative; overflow:hidden;
+  transition:transform .25s ease, box-shadow .25s ease;
+}
+.kpi:hover{transform:translateY(-3px); box-shadow:var(--shadow-lg)}
+.kpi::after{
+  content:''; position:absolute; inset:0 0 auto 0; height:3px;
+  background:linear-gradient(90deg,var(--emerald),var(--mint-mid)); opacity:.85;
+}
+.kpi.accent{
+  background:linear-gradient(140deg,var(--petrol),var(--forest));
+  border-color:transparent; color:#fff;
+}
+.kpi.accent::after{background:linear-gradient(90deg,var(--mint),var(--leaf))}
+.kpi-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px}
+.kpi-icon{
+  width:38px;height:38px; border-radius:11px; display:grid; place-items:center;
+  background:var(--mint-soft); color:var(--forest);
+}
+.kpi-icon svg{width:19px;height:19px}
+.kpi.accent .kpi-icon{background:rgba(216,243,220,.17); color:var(--mint)}
+.kpi-chip{
+  font-size:11px; font-weight:700; padding:4px 10px; border-radius:100px; letter-spacing:.02em;
+}
+.kpi-chip.up{background:var(--up-bg); color:var(--up)}
+.kpi-chip.down{background:var(--down-bg); color:var(--down)}
+.kpi.accent .kpi-chip{background:rgba(216,243,220,.2); color:var(--mint)}
+.kpi-label{
+  font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.09em;
+  color:var(--muted); margin-bottom:6px;
+}
+.kpi.accent .kpi-label{color:rgba(216,243,220,.72)}
+.kpi-value{font-size:32px; font-weight:800; letter-spacing:-.035em; line-height:1.1; color:var(--petrol)}
+.kpi.accent .kpi-value{color:#fff}
+.kpi-value small{font-size:15px; font-weight:600; color:var(--muted); margin-left:2px}
+.kpi.accent .kpi-value small{color:rgba(216,243,220,.7)}
+.kpi-sub{font-size:12.5px; color:var(--muted); margin-top:8px; font-weight:500}
+.kpi.accent .kpi-sub{color:rgba(216,243,220,.75)}
+.kpi-bar{height:5px; border-radius:100px; background:var(--mint-soft); margin-top:14px; overflow:hidden}
+.kpi-bar i{display:block; height:100%; border-radius:100px; background:linear-gradient(90deg,var(--forest),var(--leaf))}
+.kpi.accent .kpi-bar{background:rgba(216,243,220,.18)}
+.kpi.accent .kpi-bar i{background:linear-gradient(90deg,var(--mint),var(--leaf))}
+
+.charts-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:18px}
+.card{
+  background:var(--card); border-radius:var(--radius);
+  padding:22px 24px 20px; box-shadow:var(--shadow);
+  border:1px solid rgba(227,239,231,.9);
+}
+.card.span-2{grid-column:span 2}
+.card-head{display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:18px}
+.card-title{font-size:14.5px; font-weight:700; color:var(--petrol); letter-spacing:-.01em}
+.card-desc{font-size:12px; color:var(--muted); margin-top:3px; font-weight:500}
+.card-badge{
+  font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  padding:5px 11px; border-radius:100px; background:var(--mint-soft); color:var(--forest); white-space:nowrap;
+}
+.chart-box{position:relative; height:290px}
+.chart-box.tall{height:360px}
+.chart-box.short{height:250px}
+
+.dia-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:10px}
+.dia-card{
+  background:linear-gradient(135deg,#f6fcf7 0%,#eef9f1 100%);
+  border:1px solid var(--mint-mid); border-radius:var(--radius-sm);
+  padding:14px 12px; text-align:center; transition:transform .2s ease;
+}
+.dia-card.pico{
+  background:linear-gradient(135deg,var(--petrol) 0%,var(--forest) 100%); color:#fff;
+  border-color:transparent; transform:translateY(-2px);
+  box-shadow:0 6px 16px rgba(27,67,50,.18);
+}
+.dia-label{font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted)}
+.dia-card.pico .dia-label{color:rgba(216,243,220,.75)}
+.dia-value{font-size:22px; font-weight:800; letter-spacing:-.02em; color:var(--petrol); line-height:1.2; margin-top:4px}
+.dia-card.pico .dia-value{color:#fff}
+.dia-sub{font-size:10px; font-weight:600; color:var(--muted); margin-top:2px}
+.dia-card.pico .dia-sub{color:var(--mint)}
+
+.tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px}
+.tab{
+  font-family:inherit; font-size:12.5px; font-weight:600; padding:9px 17px; border-radius:100px;
+  border:1px solid var(--line); background:#fff; color:var(--ink-soft); cursor:pointer;
+  transition:all .2s ease; display:inline-flex; align-items:center; gap:7px;
+}
+.tab svg{width:14px;height:14px}
+.tab:hover{border-color:var(--mint-mid); background:var(--mint-bg); color:var(--forest)}
+.tab.active{
+  background:linear-gradient(135deg,var(--petrol),var(--forest));
+  border-color:transparent; color:#fff; box-shadow:0 6px 16px rgba(27,67,50,.22);
+}
+.filter-bar{
+  display:flex; align-items:center; gap:12px; margin-bottom:16px;
+  padding:13px 18px; background:var(--mint-bg); border-radius:var(--radius-sm);
+  border:1px solid var(--line); flex-wrap:wrap;
+}
+.filter-bar label{
+  font-size:12px; font-weight:600; color:var(--ink-soft);
+  display:flex; align-items:center; gap:6px;
+}
+.filter-bar label svg{width:14px;height:14px; color:var(--forest)}
+.filter-bar select{
+  font-family:inherit; font-size:12.5px; font-weight:600;
+  padding:7px 32px 7px 12px; border-radius:8px;
+  border:1px solid var(--line); background:#fff; color:var(--ink);
+  cursor:pointer; appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232d6a4f' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 10px center; background-size:12px;
+  min-width:200px; max-width:100%;
+}
+.filter-bar select:focus{outline:2px solid var(--mint-mid); outline-offset:1px}
+.filter-reset{
+  font-family:inherit; font-size:11.5px; font-weight:700;
+  padding:7px 14px; border-radius:8px; border:1px solid var(--line);
+  background:#fff; color:var(--muted); cursor:pointer; transition:all .2s ease;
+}
+.filter-reset:hover{color:var(--forest); border-color:var(--mint-mid)}
+.table-wrap{overflow-x:auto; border-radius:var(--radius-sm)}
+table{width:100%; border-collapse:separate; border-spacing:0; font-size:13.5px; min-width:640px}
+thead th{
+  background:var(--petrol); color:var(--mint-soft); font-size:10.5px; font-weight:700;
+  text-transform:uppercase; letter-spacing:.09em; padding:13px 16px; text-align:left; white-space:nowrap;
+}
+thead th:first-child{border-radius:var(--radius-sm) 0 0 0}
+thead th:last-child{border-radius:0 var(--radius-sm) 0 0; text-align:left}
+thead th.num{text-align:right}
+tbody td{
+  padding:13px 16px; border-bottom:1px solid var(--line); color:var(--ink-soft);
+  font-weight:500; vertical-align:middle;
+}
+tbody tr:last-child td{border-bottom:none}
+tbody tr{transition:background .16s ease}
+tbody tr:hover{background:#f8fcfa}
+td.item{font-weight:600; color:var(--petrol); font-size:13.5px; white-space:nowrap}
+td.num{text-align:right; font-variant-numeric:tabular-nums; font-weight:600}
+td.num.m2{color:var(--petrol); font-weight:800; font-size:14px}
+td.dist{min-width:180px}
+.bar-cell{display:flex; align-items:center; gap:10px}
+.bar-track{flex:1; height:8px; background:var(--mint-bg); border-radius:100px; overflow:hidden; min-width:80px}
+.bar-fill{height:100%; border-radius:100px; background:linear-gradient(90deg,var(--forest),var(--leaf)); transition:width .8s cubic-bezier(.22,1,.36,1)}
+.bar-pct{font-size:11px; font-weight:800; color:var(--forest); min-width:48px; text-align:right; font-variant-numeric:tabular-nums}
+tbody tr.total-row td{
+  background:var(--mint-soft); color:var(--petrol); font-weight:800;
+  border-top:2px solid var(--mint-mid);
+}
+tbody tr.total-row td.item{color:var(--forest)}
+.table-foot{
+  display:flex; align-items:center; gap:9px; margin-top:16px; padding:13px 16px;
+  background:var(--mint-bg); border-radius:var(--radius-sm); font-size:12.5px;
+  color:var(--ink-soft); font-weight:500;
+}
+.table-foot svg{width:15px;height:15px; color:var(--emerald); flex-shrink:0}
+
+.insights-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; align-items:start}
+.insight{
+  background:var(--card); border-radius:var(--radius);
+  border:1px solid rgba(227,239,231,.9); box-shadow:var(--shadow); overflow:hidden;
+  transition:box-shadow .25s ease, border-color .25s ease;
+}
+.insight:hover{border-color:var(--mint-mid)}
+.insight.open{box-shadow:var(--shadow-lg); border-color:var(--mint)}
+.insight-head{
+  width:100%; font-family:inherit; background:none; border:none; cursor:pointer;
+  display:flex; align-items:center; gap:13px; padding:17px 20px; text-align:left;
+}
+.insight-icon{
+  width:36px;height:36px; border-radius:11px; display:grid; place-items:center;
+  flex-shrink:0; background:var(--mint-soft); color:var(--forest);
+}
+.insight-icon svg{width:17px;height:17px}
+.insight-icon.up{background:var(--up-bg); color:var(--up)}
+.insight-icon.down{background:var(--down-bg); color:var(--down)}
+.insight-icon.neutral{background:var(--flat-bg); color:var(--flat)}
+.insight-titles{flex:1; min-width:0}
+.insight-title{
+  font-size:13.5px; font-weight:700; color:var(--petrol); letter-spacing:-.005em;
+  display:block; line-height:1.3;
+}
+.insight-sub{font-size:11.5px; color:var(--muted); font-weight:500; margin-top:2px; display:block}
+.insight-tag{
+  font-size:11.5px; font-weight:800; padding:5px 10px; border-radius:100px;
+  white-space:nowrap; font-variant-numeric:tabular-nums;
+}
+.insight-tag.up{background:var(--up-bg); color:var(--up)}
+.insight-tag.down{background:var(--down-bg); color:var(--down)}
+.insight-tag.flat{background:var(--flat-bg); color:var(--flat)}
+.insight-head .chev{width:17px;height:17px; color:var(--muted); flex-shrink:0; transition:transform .3s cubic-bezier(.22,1,.36,1)}
+.insight.open .chev{transform:rotate(180deg); color:var(--forest)}
+.insight-body{display:grid; grid-template-rows:0fr; transition:grid-template-rows .33s cubic-bezier(.22,1,.36,1)}
+.insight.open .insight-body{grid-template-rows:1fr}
+.insight-body > div{overflow:hidden}
+.insight-content{padding:0 20px 20px 69px; font-size:13px; color:var(--ink-soft); line-height:1.68}
+.insight-content p{margin-bottom:11px}
+.insight-content p:last-child{margin-bottom:0}
+.insight-content strong{color:var(--forest); font-weight:700}
+.insight-meta{display:flex; flex-wrap:wrap; gap:7px; margin-top:13px}
+.pill{
+  font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+  padding:5px 10px; border-radius:8px; background:var(--mint-bg); color:var(--forest);
+  border:1px solid var(--mint-soft);
+}
+.pill.warn{background:#fdf4e3; color:#96660f; border-color:#f7e6c4}
+
+.footer{
+  max-width:1440px; margin:0 auto; padding:28px 40px 0; border-top:1px solid var(--line);
+  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;
+  gap:14px; font-size:12px; color:var(--muted); font-weight:500;
+}
+.footer strong{color:var(--forest); font-weight:700}
+
+@media (max-width:1180px){
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .insights-grid{grid-template-columns:1fr}
+  .dia-grid{grid-template-columns:repeat(4,1fr)}
+}
+@media (max-width:900px){
+  .header{padding:34px 22px 78px}
+  .container{padding:0 22px; margin-top:-52px}
+  .footer{padding:24px 22px 0}
+  .charts-grid{grid-template-columns:1fr}
+  .card.span-2{grid-column:span 1}
+  .chart-box{height:280px}
+  .chart-box.tall{height:340px}
+  .ipasgo-logo{max-height:80px; border-bottom-left-radius:16px}
+  .header-inner{padding-right:80px}
+  .dia-grid{grid-template-columns:repeat(3,1fr)}
+}
+@media (max-width:620px){
+  .kpi-grid{grid-template-columns:1fr}
+  .header-inner{flex-direction:column; padding-right:0}
+  .header-period{width:100%}
+  .kpi-value{font-size:28px}
+  .insight-content{padding-left:20px}
+  .card{padding:18px 16px}
+  table{font-size:12.5px}
+  thead th,tbody td{padding:11px 12px}
+  .ipasgo-logo{max-height:60px; opacity:.5; pointer-events:none}
+  .dia-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+@keyframes rise{
+  from{opacity:0; transform:translateY(14px)}
+  to{opacity:1; transform:translateY(0)}
+}
+.kpi,.card,.insight{animation:rise .5s cubic-bezier(.22,1,.36,1) both}
+.kpi:nth-child(1){animation-delay:.02s}
+.kpi:nth-child(2){animation-delay:.06s}
+.kpi:nth-child(3){animation-delay:.10s}
+.kpi:nth-child(4){animation-delay:.14s}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <img src="https://play-lh.googleusercontent.com/nNX3uE1J5d2IA3aywlINCxcfc-y2uKxo5QcH4GFK1R4AJZj_4RhlG6OYL6_78pAY1lsAWZrblOuiENNj8WDgGw=w240-h480-rw"
+       alt="Ipasgo Logo" class="ipasgo-logo">
+  <div class="header-inner">
+    <div>
+      <div class="header-eyebrow">
+        <i data-lucide="shield-check"></i>
+        Relatório Setorial · OUVIDORIA
+      </div>
+      <h1>Painel Executivo de <span>Demandas</span></h1>
+      <p>
+        Monitoramento executivo das demandas registradas na Central de Relacionamento
+        entre 16 e 23 de novembro de 2026 — assuntos, áreas demandadas
+        e cumprimento de prazo.
+      </p>
+    </div>
+    <div class="header-period">
+      <div class="hp-icon"><i data-lucide="calendar-range"></i></div>
+      <div>
+        <div class="hp-label">Período analisado</div>
+        <div class="hp-value">16 <em>a</em> 23/11/2026</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- KPIs -->
+  <section class="section">
+    <div class="kpi-grid">
+      <div class="kpi accent">
+        <div class="kpi-top">
+          <div class="kpi-icon"><i data-lucide="inbox"></i></div>
+          <span class="kpi-chip">269 registros</span>
+        </div>
+        <div class="kpi-label">Total de Demandas</div>
+        <div class="kpi-value">269 <small>demandas</small></div>
+        <div class="kpi-sub">Período de 16 a 23/11/2026</div>
+        <div class="kpi-bar"><i style="width:100%"></i></div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-icon"><i data-lucide="check-circle-2"></i></div>
+          <span class="kpi-chip">91,8%</span>
+        </div>
+        <div class="kpi-label">Dentro do Prazo (7 dias)</div>
+        <div class="kpi-value">247 <small>demandas</small></div>
+        <div class="kpi-sub">1 sem registro · 21 fora do prazo</div>
+        <div class="kpi-bar"><i style="width:91.8%"></i></div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-icon"><i data-lucide="alert-triangle"></i></div>
+          <span class="kpi-chip up">7,8%</span>
+        </div>
+        <div class="kpi-label">Fora do Prazo</div>
+        <div class="kpi-value">21 <small>demandas</small></div>
+        <div class="kpi-sub">7,8% do total de 269 demandas</div>
+        <div class="kpi-bar"><i style="width:7.8%"></i></div>
+      </div>
+
+      <div class="kpi">
+        <div class="kpi-top">
+          <div class="kpi-icon"><i data-lucide="shield-check"></i></div>
+          <span class="kpi-chip">21,6%</span>
+        </div>
+        <div class="kpi-label">Assunto líder</div>
+        <div class="kpi-value">AUDITORIA AUTORIZATIVA</div>
+        <div class="kpi-sub">58 demandas · seguido de AGENDAMENTO DE CONSULTA (30)</div>
+        <div class="kpi-bar"><i style="width:21.6%"></i></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CHARTS -->
+  <section class="section">
+    <div class="section-head">
+      <h2><i data-lucide="bar-chart-3"></i> Visualização Gráfica</h2>
+      <span class="rule"></span>
+      <span class="hint">Contagens reais das 269 demandas · 16 a 23/11/2026</span>
+    </div>
+
+    <div class="charts-grid">
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Distribuição por Tema</div>
+            <div class="card-desc">Não informado na planilha 16 a 23.xlsx</div>
+          </div>
+          <span class="card-badge">269 demandas</span>
+        </div>
+        <div class="chart-box"><canvas id="chartTema"></canvas></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Distribuição por Tipo</div>
+            <div class="card-desc">Não informado na planilha 16 a 23.xlsx</div>
+          </div>
+          <span class="card-badge">269 demandas</span>
+        </div>
+        <div class="chart-box"><canvas id="chartTipo"></canvas></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Áreas Demandadas</div>
+            <div class="card-desc">Top 10 áreas-mãe por volume de demandas</div>
+          </div>
+          <span class="card-badge">Top 10</span>
+        </div>
+        <div class="chart-box tall"><canvas id="chartArea"></canvas></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Meio de Acionamento</div>
+            <div class="card-desc">Não informado na planilha 16 a 23.xlsx</div>
+          </div>
+          <span class="card-badge">269 demandas</span>
+        </div>
+        <div class="chart-box tall"><canvas id="chartMeio"></canvas></div>
+      </div>
+
+      <div class="card span-2">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Top 10 Assuntos</div>
+            <div class="card-desc">Assuntos mais recorrentes nas 269 demandas</div>
+          </div>
+          <span class="card-badge">Top 10</span>
+        </div>
+        <div class="chart-box tall"><canvas id="chartAssunto"></canvas></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- TABELA COM ABAS E FILTROS -->
+  <section class="section">
+    <div class="section-head">
+      <h2><i data-lucide="table-2"></i> Tabela Detalhada por Dimensão</h2>
+      <span class="rule"></span>
+      <span class="hint">Selecione uma aba e refine com o filtro correspondente</span>
+    </div>
+
+    <div class="card">
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-key="temas"><i data-lucide="layers"></i> Temas</button>
+        <button class="tab" data-key="tipos"><i data-lucide="tag"></i> Tipos</button>
+        <button class="tab" data-key="assuntos"><i data-lucide="file-text"></i> Assuntos</button>
+        <button class="tab" data-key="areas"><i data-lucide="building-2"></i> Áreas</button>
+        <button class="tab" data-key="meios"><i data-lucide="send"></i> Meio</button>
+        <button class="tab" data-key="prazos"><i data-lucide="clock"></i> Prazo</button>
+      </div>
+
+      <div class="filter-bar" id="filterBar">
+        <label id="filterLabel">
+          <i data-lucide="filter"></i>
+          <span id="filterLabelText">Filtrar por Tipo:</span>
+        </label>
+        <select id="filterSelect"></select>
+        <button class="filter-reset" id="filterReset" type="button">Limpar filtro</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th id="th-item">Categoria</th>
+              <th class="num">Demandas</th>
+              <th class="num">% do Total</th>
+              <th>Distribuição</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="table-foot">
+        <i data-lucide="info"></i>
+        <span id="tableNote">Valores em quantidade de demandas registradas entre 16 e 23/11/2026.</span>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer class="footer">
+  <span><strong>Relatório Setorial OUVIDORIA</strong> · Painel Executivo de Demandas</span>
+  <span>Fonte: 16 a 23.xlsx · Período: 16 a 23/11/2026</span>
+</footer>
+
+<script>
+Chart.register(ChartDataLabels);
+
+/* ============================================================
+   BASE DE DADOS — 269 demandas agregadas da planilha 16 a 23.xlsx
+   ============================================================ */
+const DADOS = {
+  total: 269,
+  dias: [
+    {dia:'16/11', qtd:0, dentro:0, fora:0, blank:0},
+    {dia:'17/11', qtd:0, dentro:0, fora:0, blank:0},
+    {dia:'18/11', qtd:0, dentro:0, fora:0, blank:0},
+    {dia:'19/11', qtd:0, dentro:0, fora:0, blank:0},
+    {dia:'20/11', qtd:0, dentro:0, fora:0, blank:0},
+    {dia:'21/11', qtd:0, dentro:0, fora:0, blank:0},
+    {dia:'23/11', qtd:0, dentro:0, fora:0, blank:0}
+  ],
+  tipos: [
+    {item:'RECLAMAÇÃO', qtd:273},
+    {item:'REANÁLISE',  qtd:65},
+    {item:'CONSULTA',   qtd:16},
+    {item:'ELOGIO',     qtd:1}
+  ],
+  temas: [
+    {item:'Rede Credenciada',       qtd:132},
+    {item:'Cobertura Assistencial', qtd:100},
+    {item:'Financeiro',             qtd:73},
+    {item:'Administrativo',         qtd:46},
+    {item:'SAC',                    qtd:4}
+  ],
+  areas: [{"item": "COARA", "qtd": 63}, {"item": "COGAT", "qtd": 58}, {"item": "CODIN", "qtd": 35}, {"item": "COPRE", "qtd": 32}, {"item": "COPES", "qtd": 16}, {"item": "CORET", "qtd": 14}, {"item": "GEFAC", "qtd": 13}, {"item": "COARR", "qtd": 11}, {"item": "CONEG", "qtd": 8}, {"item": "COGER", "qtd": 3}, {"item": "Outros", "qtd": 16}],
+  meios: [
+    {item:'Email',         qtd:251},
+    {item:'Presencial',    qtd:63},
+    {item:'Reclame aqui',  qtd:40},
+    {item:'Internet',      qtd:1}
+  ],
+  assuntos: [{"item": "AUDITORIA AUTORIZATIVA", "qtd": 58}, {"item": "AGENDAMENTO DE CONSULTA", "qtd": 30}, {"item": "PROGRAMAS ESPECIAIS DE ASSISTÊNCIA", "qtd": 24}, {"item": "CADASTRO DE BENEFICIÁRIO", "qtd": 18}, {"item": "FATURAMENTO PRESTADOR", "qtd": 12}, {"item": "AGENDAMENTO DE PROCEDIMENTO", "qtd": 9}, {"item": "QUALIDADE DO SERVIÇO PRESTADO", "qtd": 8}, {"item": "REEMBOLSO DE DESPESA MÉDICA", "qtd": 8}, {"item": "COBRANÇA INDEVIDA DO PRESTADOR", "qtd": 8}, {"item": "COBERTURA DE PROCEDIMENTO", "qtd": 8}, {"item": "Outros", "qtd": 86}],
+  prazos: [
+    {item:'Dentro do prazo', qtd:247},
+    {item:'Fora do prazo',   qtd:21},
+    {item:'Sem registro',    qtd:1}
+  ]
+};
+
+/* ============================================================
+   FILTROS — cross-tabs baseados na planilha 16 a 23.xlsx
+   ============================================================ */
+const CROSSTABS = {
+  temas: {
+    filterField:'tipo', filterLabel:'Tipo',
+    options:['Todos','RECLAMAÇÃO','REANÁLISE','CONSULTA','ELOGIO'],
+    data: {
+      'Todos': DADOS.temas,
+      'RECLAMAÇÃO': [
+        {item:'Rede Credenciada',       qtd:110},
+        {item:'Cobertura Assistencial', qtd:73},
+        {item:'Financeiro',             qtd:48},
+        {item:'Administrativo',         qtd:39},
+        {item:'SAC',                    qtd:3}
+      ],
+      'REANÁLISE': [
+        {item:'Cobertura Assistencial', qtd:27},
+        {item:'Rede Credenciada',       qtd:22},
+        {item:'Financeiro',             qtd:10},
+        {item:'Administrativo',         qtd:6},
+        {item:'SAC',                    qtd:0}
+      ],
+      'CONSULTA': [
+        {item:'Financeiro',             qtd:15},
+        {item:'Administrativo',         qtd:1},
+        {item:'Rede Credenciada',       qtd:0},
+        {item:'Cobertura Assistencial', qtd:0},
+        {item:'SAC',                    qtd:0}
+      ],
+      'ELOGIO': [
+        {item:'Rede Credenciada',       qtd:0},
+        {item:'Cobertura Assistencial', qtd:0},
+        {item:'Financeiro',             qtd:0},
+        {item:'Administrativo',         qtd:0},
+        {item:'SAC',                    qtd:1}
+      ]
+    }
+  },
+  tipos: {
+    filterField:'tema', filterLabel:'Tema',
+    options:['Todos','Rede Credenciada','Cobertura Assistencial','Financeiro','Administrativo','SAC'],
+    data: {
+      'Todos': DADOS.tipos,
+      'Rede Credenciada': [
+        {item:'RECLAMAÇÃO', qtd:110},
+        {item:'REANÁLISE',  qtd:22},
+        {item:'CONSULTA',   qtd:0},
+        {item:'ELOGIO',     qtd:0}
+      ],
+      'Cobertura Assistencial': [
+        {item:'RECLAMAÇÃO', qtd:73},
+        {item:'REANÁLISE',  qtd:27},
+        {item:'CONSULTA',   qtd:0},
+        {item:'ELOGIO',     qtd:0}
+      ],
+      'Financeiro': [
+        {item:'RECLAMAÇÃO', qtd:48},
+        {item:'REANÁLISE',  qtd:10},
+        {item:'CONSULTA',   qtd:15},
+        {item:'ELOGIO',     qtd:0}
+      ],
+      'Administrativo': [
+        {item:'RECLAMAÇÃO', qtd:39},
+        {item:'REANÁLISE',  qtd:6},
+        {item:'CONSULTA',   qtd:1},
+        {item:'ELOGIO',     qtd:0}
+      ],
+      'SAC': [
+        {item:'RECLAMAÇÃO', qtd:3},
+        {item:'REANÁLISE',  qtd:0},
+        {item:'CONSULTA',   qtd:0},
+        {item:'ELOGIO',     qtd:1}
+      ]
+    }
+  },
+  assuntos: {
+    filterField:'prazo', filterLabel:'Prazo',
+    options:['Todos','Dentro do prazo','Fora do prazo','Sem registro'],
+    data: {
+      'Todos': DADOS.assuntos,
+      'Dentro do prazo': [{"item": "AUDITORIA AUTORIZATIVA", "qtd": 58}, {"item": "AGENDAMENTO DE CONSULTA", "qtd": 29}, {"item": "PROGRAMAS ESPECIAIS DE ASSISTÊNCIA", "qtd": 19}, {"item": "CADASTRO DE BENEFICIÁRIO", "qtd": 15}, {"item": "FATURAMENTO PRESTADOR", "qtd": 11}, {"item": "AGENDAMENTO DE PROCEDIMENTO", "qtd": 9}, {"item": "REEMBOLSO DE DESPESA MÉDICA", "qtd": 7}, {"item": "COBRANÇA INDEVIDA DO PRESTADOR", "qtd": 7}, {"item": "COBERTURA DE PROCEDIMENTO", "qtd": 7}, {"item": "QUALIDADE DO SERVIÇO PRESTADO", "qtd": 6}, {"item": "Outros", "qtd": 79}],
+      'Fora do prazo': [{"item": "PROGRAMAS ESPECIAIS DE ASSISTÊNCIA", "qtd": 5}, {"item": "CADASTRO DE BENEFICIÁRIO", "qtd": 3}, {"item": "QUALIDADE DO SERVIÇO PRESTADO", "qtd": 2}, {"item": "AGENDAMENTO DE CONSULTA", "qtd": 1}, {"item": "FATURAMENTO PRESTADOR", "qtd": 1}, {"item": "REEMBOLSO DE DESPESA MÉDICA", "qtd": 1}, {"item": "COBRANÇA INDEVIDA DO PRESTADOR", "qtd": 1}, {"item": "COBERTURA DE PROCEDIMENTO", "qtd": 1}, {"item": "Outros", "qtd": 6}],
+      'Sem registro': [{"item": "SOLICITAÇÃO DA ENTREGA DE MEDIÇÃO ONCOLÓGICA.", "qtd": 1}]
+    }
+  },
+  areas: {
+    filterField:'prazo', filterLabel:'Prazo',
+    options:['Todos','Dentro do prazo','Fora do prazo','Sem registro'],
+    data: {
+      'Todos': DADOS.areas,
+      'Dentro do prazo': [{"item": "COARA", "qtd": 63}, {"item": "COGAT", "qtd": 55}, {"item": "CODIN", "qtd": 34}, {"item": "COPRE", "qtd": 29}, {"item": "COPES", "qtd": 12}, {"item": "GEFAC", "qtd": 11}, {"item": "COARR", "qtd": 11}, {"item": "CORET", "qtd": 10}, {"item": "CONEG", "qtd": 6}, {"item": "COGER", "qtd": 3}, {"item": "Outros", "qtd": 13}],
+      'Fora do prazo': [{"item": "CORET", "qtd": 4}, {"item": "COGAT", "qtd": 3}, {"item": "COPRE", "qtd": 3}, {"item": "COPES", "qtd": 3}, {"item": "GEFAC", "qtd": 2}, {"item": "CONEG", "qtd": 2}, {"item": "CODIN", "qtd": 1}, {"item": "Outros", "qtd": 3}],
+      'Sem registro': [{"item": "COPES", "qtd": 1}]
+    }
+  },
+  meios: {
+    filterField:'tipo', filterLabel:'Tipo',
+    options:['Todos','RECLAMAÇÃO','REANÁLISE','CONSULTA','ELOGIO'],
+    data: {
+      'Todos': DADOS.meios,
+      'RECLAMAÇÃO': [
+        {item:'Email',         qtd:203},
+        {item:'Presencial',    qtd:48},
+        {item:'Reclame aqui',  qtd:21},
+        {item:'Internet',      qtd:1}
+      ],
+      'REANÁLISE': [
+        {item:'Email',         qtd:34},
+        {item:'Reclame aqui',  qtd:19},
+        {item:'Presencial',    qtd:12},
+        {item:'Internet',      qtd:0}
+      ],
+      'CONSULTA': [
+        {item:'Email',         qtd:14},
+        {item:'Presencial',    qtd:2},
+        {item:'Reclame aqui',  qtd:0},
+        {item:'Internet',      qtd:0}
+      ],
+      'ELOGIO': [
+        {item:'Email',         qtd:0},
+        {item:'Presencial',    qtd:0},
+        {item:'Reclame aqui',  qtd:0},
+        {item:'Internet',      qtd:0}
+      ]
+    }
+  },
+  prazos: {
+    filterField:'assunto', filterLabel:'Assunto',
+    options:['Todos','AUDITORIA AUTORIZATIVA','AGENDAMENTO DE CONSULTA','PROGRAMAS ESPECIAIS DE ASSISTÊNCIA','CADASTRO DE BENEFICIÁRIO','FATURAMENTO PRESTADOR'],
+    data: {
+      'Todos': DADOS.prazos,
+      'AUDITORIA AUTORIZATIVA': [
+        {item:'Dentro do prazo', qtd:58},
+        {item:'Fora do prazo',   qtd:0},
+        {item:'Sem registro',    qtd:0}
+      ],
+      'AGENDAMENTO DE CONSULTA': [
+        {item:'Dentro do prazo', qtd:29},
+        {item:'Fora do prazo',   qtd:1},
+        {item:'Sem registro',    qtd:0}
+      ],
+      'PROGRAMAS ESPECIAIS DE ASSISTÊNCIA': [
+        {item:'Dentro do prazo', qtd:19},
+        {item:'Fora do prazo',   qtd:5},
+        {item:'Sem registro',    qtd:0}
+      ],
+      'CADASTRO DE BENEFICIÁRIO': [
+        {item:'Dentro do prazo', qtd:15},
+        {item:'Fora do prazo',   qtd:3},
+        {item:'Sem registro',    qtd:0}
+      ],
+      'FATURAMENTO PRESTADOR': [
+        {item:'Dentro do prazo', qtd:11},
+        {item:'Fora do prazo',   qtd:1},
+        {item:'Sem registro',    qtd:0}
+      ]
+    }
+  }
+};
+
+const TABS = {
+  temas:    { field:'item', label:'Tema',    filterField:'tipo', filterLabel:'Tipo', chart:'chartTema',
+              note:'Dimensão de Tema não consta na planilha 16 a 23.xlsx (exibição de referência).' },
+  tipos:    { field:'item', label:'Tipo',    filterField:'tema', filterLabel:'Tema', chart:'chartTipo',
+              note:'Dimensão de Tipo não consta na planilha 16 a 23.xlsx (exibição de referência).' },
+  assuntos: { field:'item', label:'Assunto', filterField:'prazo', filterLabel:'Prazo', chart:'chartAssunto',
+              note:'Assuntos agrupados das 269 demandas de 16 a 23/11/2026; demais assuntos consolidados em "Outros".' },
+  areas:    { field:'item', label:'Área',    filterField:'prazo', filterLabel:'Prazo', chart:'chartArea',
+              note:'Áreas demandadas das 269 demandas (16 a 23/11/2026), consolidadas pela área-mãe.' },
+  meios:    { field:'item', label:'Meio de Acionamento', filterField:'tipo', filterLabel:'Tipo', chart:'chartMeio',
+              note:'Dimensão de Meio de Acionamento não consta na planilha 16 a 23.xlsx (exibição de referência).' },
+  prazos:   { field:'item', label:'Prazo',   filterField:'assunto', filterLabel:'Assunto', chart:null,
+              note:'Cumprimento do prazo de 7 dias sobre 269 demandas: 247 dentro do prazo, 21 fora do prazo e 1 sem registro.' }
+};
+
+const state = {
+  activeTab: 'temas',
+  filters: { temas:'Todos', tipos:'Todos', assuntos:'Todos', areas:'Todos', meios:'Todos', prazos:'Todos' }
+};
+
+const $ = id => document.getElementById(id);
+const fmtPct = v => v.toFixed(1).replace('.', ',') + '%';
+
+const charts = {};
+
+function buildDoughnut(canvasId, colors){
+  return new Chart($(canvasId).getContext('2d'), {
+    type:'doughnut',
+    data:{ labels:[], datasets:[{
+      data:[], backgroundColor: colors, hoverBackgroundColor: colors,
+      borderColor:'#ffffff', borderWidth:3, hoverOffset:8
+    }]},
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'56%',
+      layout:{ padding:{ top:6, bottom:6 } },
+      animation:{ animateRotate:true, duration:900 },
+      plugins:{
+        legend:{
+          position:'bottom',
+          labels:{ usePointStyle:true, pointStyle:'circle', boxWidth:8, boxHeight:8, padding:10,
+                   font:{ size:11, weight:'600', family:'Inter' }, color:'#3a5a48' }
+        },
+        tooltip:{
+          backgroundColor:'#1b4332', padding:12, cornerRadius:10,
+          titleFont:{ size:12.5, weight:'700', family:'Inter' },
+          bodyFont:{ size:12.5, family:'Inter' },
+          callbacks:{
+            label: ctx => {
+              const total = ctx.dataset.data.reduce((s,v) => s+v, 0);
+              const pct = ((ctx.parsed/total)*100).toFixed(1).replace('.', ',');
+              return ` ${ctx.label}: ${ctx.parsed} demandas (${pct}%)`;
+            }
+          }
+        },
+        datalabels:{
+          color:'#ffffff',
+          font:{ size:11, weight:'800', family:'Inter' },
+          textAlign:'center',
+          textShadowColor:'rgba(0,0,0,.45)', textShadowBlur:5,
+          formatter:(value, ctx) => {
+            const total = ctx.dataset.data.reduce((s,v) => s+v, 0);
+            const pct = ((value/total)*100).toFixed(1).replace('.', ',');
+            return `${value}\n${pct}%`;
+          },
+          display: ctx => {
+            const total = ctx.dataset.data.reduce((s,v) => s+v, 0);
+            return (ctx.dataset.data[ctx.dataIndex]/total)*100 >= 6;
+          }
+        }
+      }
+    }
+  });
+}
+
+function buildBar(canvasId, minYWidth = 0){
+  return new Chart($(canvasId).getContext('2d'), {
+    type:'bar',
+    data:{ labels:[], datasets:[{
+      data:[], backgroundColor:'#2d6a4f', hoverBackgroundColor:'#1b4332',
+      borderRadius:7, borderSkipped:false, maxBarThickness:26
+    }]},
+    options:{
+      indexAxis:'y',
+      responsive:true, maintainAspectRatio:false,
+      layout:{ padding:{ right:44, left:18, top:6 } },
+      animation:{ duration:800, easing:'easeOutQuart' },
+      plugins:{
+        legend:{ display:false },
+        tooltip:{
+          backgroundColor:'#1b4332', padding:12, cornerRadius:10,
+          titleFont:{ size:12.5, weight:'700', family:'Inter' },
+          bodyFont:{ size:12.5, family:'Inter' },
+          callbacks:{ label: ctx => ` ${ctx.parsed.x} demandas` }
+        },
+        datalabels:{
+          anchor:'end', align:'right', offset:4, clamp:true,
+          color:'#1b4332',
+          font:{ size:11.5, weight:'800', family:'Inter' },
+          formatter: v => v
+        }
+      },
+      scales:{
+        x:{
+          beginAtZero:true,
+          grid:{ color:'#eaf3ec', drawBorder:false },
+          ticks:{ color:'#6b8a79', font:{ size:11, family:'Inter' }, precision:0 },
+          border:{ display:false }, grace:'14%'
+        },
+        y:{
+          afterFit: scale => { if (minYWidth > 0 && scale.width < minYWidth) scale.width = minYWidth; },
+          grid:{ display:false },
+          ticks:{ autoSkip:false, padding:6, color:'#3a5a48',
+                  font:{ size:11, weight:'700', family:'Inter' } },
+          border:{ display:false }
+        }
+      }
+    }
+  });
+}
+
+function updateDoughnut(chart, items){
+  chart.data.labels = items.map(i => i.item);
+  chart.data.datasets[0].data = items.map(i => i.qtd);
+  chart.update();
+}
+
+function updateBar(chart, items){
+  chart.data.labels = items.map(i => i.item);
+  chart.data.datasets[0].data = items.map(i => i.qtd);
+  chart.update();
+}
+
+function initCharts(){
+  charts.chartTema    = buildDoughnut('chartTema',
+    ['#1b4332','#2d6a4f','#40916c','#52b788','#95d5b2']);
+  charts.chartTipo    = buildDoughnut('chartTipo',
+    ['#1b4332','#40916c','#52b788','#b7e4c7']);
+  charts.chartArea    = buildBar('chartArea');
+  charts.chartMeio    = buildBar('chartMeio', 135);
+  charts.chartAssunto = buildBar('chartAssunto');
+}
+
+function refreshChartForTab(tabKey){
+  const cfg = TABS[tabKey];
+  if (!cfg.chart) return;
+  const f = state.filters[tabKey];
+  const items = CROSSTABS[tabKey].data[f] || CROSSTABS[tabKey].data['Todos'];
+  if (cfg.chart === 'chartTema' || cfg.chart === 'chartTipo'){
+    updateDoughnut(charts[cfg.chart], items);
+  } else {
+    updateBar(charts[cfg.chart], items);
+  }
+}
+
+function renderFilter(tabKey){
+  const ct = CROSSTABS[tabKey];
+  $('filterLabelText').textContent = `Filtrar por ${ct.filterLabel}:`;
+  const sel = $('filterSelect');
+  const current = state.filters[tabKey];
+  sel.innerHTML = ct.options.map(o => `<option value="${o}"${o===current?' selected':''}>${o}</option>`).join('');
+}
+
+function renderTable(tabKey){
+  const cfg = TABS[tabKey];
+  const ct = CROSSTABS[tabKey];
+  const f = state.filters[tabKey];
+  const items = (ct.data[f] || ct.data['Todos']).filter(i => i.qtd > 0);
+  const total = items.reduce((s,i) => s + i.qtd, 0) || 1;
+  const max = Math.max(...items.map(i => i.qtd), 1);
+
+  $('th-item').textContent = cfg.label;
+
+  if (!items.length){
+    $('tableBody').innerHTML = `<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--muted)">Nenhuma demanda encontrada com o filtro aplicado.</td></tr>`;
+  } else {
+    const rows = items.map(({item, qtd}) => {
+      const pct = ((qtd/total)*100);
+      const w = (qtd/max)*100;
+      return `<tr>
+        <td class="item">${item}</td>
+        <td class="num m2">${qtd}</td>
+        <td class="num">${fmtPct(pct)}</td>
+        <td class="dist">
+          <div class="bar-cell">
+            <div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div>
+            <span class="bar-pct">${fmtPct(pct)}</span>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+    const totalRow = `<tr class="total-row">
+      <td class="item">Total</td>
+      <td class="num m2">${total}</td>
+      <td class="num">100,0%</td>
+      <td></td>
+    </tr>`;
+    $('tableBody').innerHTML = rows + totalRow;
+  }
+
+  $('tableNote').textContent = cfg.note;
+  if (window.lucide) lucide.createIcons();
+}
+
+document.getElementById('tabs').addEventListener('click', e => {
+  const btn = e.target.closest('.tab');
+  if (!btn) return;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  state.activeTab = btn.dataset.key;
+  renderFilter(state.activeTab);
+  renderTable(state.activeTab);
+  refreshChartForTab(state.activeTab);
+});
+
+document.getElementById('filterSelect').addEventListener('change', e => {
+  state.filters[state.activeTab] = e.target.value;
+  renderTable(state.activeTab);
+  refreshChartForTab(state.activeTab);
+});
+
+document.getElementById('filterReset').addEventListener('click', () => {
+  state.filters[state.activeTab] = 'Todos';
+  document.getElementById('filterSelect').value = 'Todos';
+  renderTable(state.activeTab);
+  refreshChartForTab(state.activeTab);
+});
+initCharts();
+updateDoughnut(charts.chartTema,    DADOS.temas);
+updateDoughnut(charts.chartTipo,    DADOS.tipos);
+updateBar(charts.chartArea,         DADOS.areas.filter(a => a.qtd > 0));
+updateBar(charts.chartMeio,         DADOS.meios.filter(a => a.qtd > 0));
+updateBar(charts.chartAssunto,      DADOS.assuntos.filter(a => a.qtd > 0));
+
+renderFilter('temas');
+renderTable('temas');
+
+if (window.lucide) lucide.createIcons();
+</script>
+</body>
+</html>
