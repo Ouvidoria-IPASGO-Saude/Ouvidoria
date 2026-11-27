@@ -1,1026 +1,1172 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<!--
-  ============================================================
-  PAINEL EXECUTIVO DE DEMANDAS — OUVIDORIA · 16 A 23/11/2026
-  ============================================================
-  Fonte: 16 a 23.xlsx · aba "16 a 23" (269 registros)
-  Total real: 269 demandas
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IPASGO Saúde — Painel de Monitoramento de Demandas</title>
 
-  Agregados recalculados a partir das 269 linhas:
-  - Dentro do prazo: 247 (91,8%) · Fora do prazo: 21 (7,8%) · Sem registro: 1 (0,4%)
-  - Assuntos (Top 10): AUDITORIA AUTORIZATIVA 58 · AGENDAMENTO DE CONSULTA 30 ·
-    PROGRAMAS ESPECIAIS DE ASSISTÊNCIA 24 · CADASTRO DE BENEFICIÁRIO 18 ·
-    FATURAMENTO PRESTADOR 12 · AGENDAMENTO DE PROCEDIMENTO 9 ·
-    QUALIDADE DO SERVIÇO PRESTADO 8 · REEMBOLSO DE DESPESA MÉDICA 8 ·
-    COBRANÇA INDEVIDA DO PRESTADOR 8 · COBERTURA DE PROCEDIMENTO 8
-  - Áreas-mãe (Top 10): COARA 63 · COGAT 58 · CODIN 35 · COPRE 32 · COPES 16 ·
-    CORET 14 · GEFAC 13 · COARR 11 · CONEG 8 · COGER 3
-  ============================================================
--->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel Executivo de Demandas · 16–23/11/2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --green-950: #052e16;
+      --green-900: #0a4224;
+      --green-800: #0f5c33;
+      --green-700: #157a44;
+      --green-600: #169452;
+      --green-500: #22b065;
+      --green-200: #bbf7d0;
+      --green-100: #dcfce7;
+      --green-50:  #f0fdf4;
 
-<style>
-:root{
-  --petrol:#1b4332; --forest:#2d6a4f; --emerald:#40916c; --leaf:#52b788;
-  --mint-mid:#95d5b2; --mint:#b7e4c7; --mint-soft:#d8f3dc; --mint-bg:#f3f8f4;
-  --ink:#0f2419; --ink-soft:#3a5a48; --muted:#6b8a79; --line:#e3efe7; --card:#ffffff;
-  --up:#b23a34; --up-bg:#fbe6e4; --down:#2d6a4f; --down-bg:#d8f3dc;
-  --flat:#6b8a79; --flat-bg:#eef3f0;
-  --radius:18px; --radius-sm:12px;
-  --shadow:0 4px 20px rgba(27,67,50,.07);
-  --shadow-lg:0 12px 36px rgba(27,67,50,.13);
-}
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-  background:var(--mint-bg); color:var(--ink); line-height:1.55;
-  -webkit-font-smoothing:antialiased; padding-bottom:56px;
-}
+      --amber-600: #d97706;
+      --amber-100: #fef3c7;
+      --red-600:   #dc2626;
+      --red-100:   #fee2e2;
+      --slate-900: #0f172a;
+      --slate-700: #334155;
+      --slate-500: #64748b;
+      --slate-300: #cbd5e1;
+      --slate-200: #e2e8f0;
+      --bg-page:   #f3f8f5;
+      --surface:   #ffffff;
 
-.header{
-  position:relative;
-  background:linear-gradient(125deg,#142f23 0%,var(--petrol) 38%,var(--forest) 78%,var(--emerald) 130%);
-  color:#fff; padding:44px 40px 88px; overflow:hidden;
-}
-.header::before{
-  content:''; position:absolute; width:520px;height:520px; border-radius:50%;
-  background:radial-gradient(circle,rgba(149,213,178,.22),transparent 68%);
-  top:-260px;right:-140px;
-}
-.header::after{
-  content:''; position:absolute; width:340px;height:340px; border-radius:50%;
-  background:radial-gradient(circle,rgba(216,243,220,.14),transparent 70%);
-  bottom:-200px;left:-90px;
-}
-.ipasgo-logo{
-  position:absolute; top:0; right:0; height:100%; max-height:110px; width:auto;
-  object-fit:contain; mix-blend-mode:multiply; border-bottom-left-radius:24px;
-  z-index:10; pointer-events:none;
-}
-.header-inner{
-  position:relative; z-index:2; max-width:1440px; margin:0 auto;
-  display:flex; flex-wrap:wrap; gap:28px; align-items:flex-start;
-  justify-content:space-between; padding-right:120px;
-}
-.header-eyebrow{
-  display:inline-flex; align-items:center; gap:8px;
-  background:rgba(216,243,220,.15); border:1px solid rgba(216,243,220,.28);
-  color:var(--mint-soft); font-size:11.5px; font-weight:600;
-  letter-spacing:.11em; text-transform:uppercase; padding:7px 15px;
-  border-radius:100px; margin-bottom:18px; backdrop-filter:blur(4px);
-}
-.header-eyebrow svg{width:14px;height:14px}
-.header h1{
-  font-size:clamp(26px,3.4vw,40px); font-weight:800;
-  letter-spacing:-.025em; line-height:1.15; margin-bottom:12px;
-}
-.header h1 span{
-  background:linear-gradient(90deg,var(--mint),var(--mint-mid));
-  -webkit-background-clip:text; background-clip:text; color:transparent;
-}
-.header p{font-size:15px; color:rgba(216,243,220,.82); max-width:680px; font-weight:400}
-.header-period{
-  display:flex; align-items:center; gap:14px;
-  background:rgba(255,255,255,.09); border:1px solid rgba(216,243,220,.22);
-  border-radius:var(--radius); padding:16px 22px;
-  backdrop-filter:blur(8px); flex-shrink:0;
-}
-.header-period .hp-icon{
-  width:42px;height:42px; border-radius:12px;
-  background:rgba(216,243,220,.16); display:grid;place-items:center; color:var(--mint);
-}
-.header-period .hp-label{
-  font-size:10.5px; text-transform:uppercase; letter-spacing:.13em;
-  color:rgba(216,243,220,.68); font-weight:600;
-}
-.header-period .hp-value{
-  font-size:16.5px; font-weight:700; color:#fff; letter-spacing:-.01em;
-}
-.header-period .hp-value em{font-style:normal; color:var(--mint-mid); margin:0 4px}
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow-sm: 0 1px 3px rgba(10, 66, 36, 0.06), 0 1px 2px rgba(10, 66, 36, 0.04);
+      --shadow-md: 0 8px 24px -4px rgba(10, 66, 36, 0.08), 0 2px 6px -1px rgba(10, 66, 36, 0.04);
+    }
 
-.container{max-width:1440px; margin:-58px auto 0; padding:0 40px; position:relative; z-index:5}
-.section{margin-bottom:44px}
-.section-head{display:flex; align-items:center; gap:12px; margin-bottom:20px; flex-wrap:wrap}
-.section-head h2{
-  font-size:19px; font-weight:700; letter-spacing:-.015em;
-  color:var(--petrol); display:flex; align-items:center; gap:10px;
-}
-.section-head h2 svg{width:19px;height:19px; color:var(--emerald)}
-.section-head .rule{flex:1; height:1px; background:linear-gradient(90deg,var(--line),transparent); min-width:30px}
-.section-head .hint{font-size:12.5px; color:var(--muted); font-weight:500}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-.kpi-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:18px}
-.kpi{
-  background:var(--card); border-radius:var(--radius);
-  padding:22px 22px 20px; box-shadow:var(--shadow);
-  border:1px solid rgba(227,239,231,.9); position:relative; overflow:hidden;
-  transition:transform .25s ease, box-shadow .25s ease;
-}
-.kpi:hover{transform:translateY(-3px); box-shadow:var(--shadow-lg)}
-.kpi::after{
-  content:''; position:absolute; inset:0 0 auto 0; height:3px;
-  background:linear-gradient(90deg,var(--emerald),var(--mint-mid)); opacity:.85;
-}
-.kpi.accent{
-  background:linear-gradient(140deg,var(--petrol),var(--forest));
-  border-color:transparent; color:#fff;
-}
-.kpi.accent::after{background:linear-gradient(90deg,var(--mint),var(--leaf))}
-.kpi-top{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px}
-.kpi-icon{
-  width:38px;height:38px; border-radius:11px; display:grid; place-items:center;
-  background:var(--mint-soft); color:var(--forest);
-}
-.kpi-icon svg{width:19px;height:19px}
-.kpi.accent .kpi-icon{background:rgba(216,243,220,.17); color:var(--mint)}
-.kpi-chip{
-  font-size:11px; font-weight:700; padding:4px 10px; border-radius:100px; letter-spacing:.02em;
-}
-.kpi-chip.up{background:var(--up-bg); color:var(--up)}
-.kpi-chip.down{background:var(--down-bg); color:var(--down)}
-.kpi.accent .kpi-chip{background:rgba(216,243,220,.2); color:var(--mint)}
-.kpi-label{
-  font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.09em;
-  color:var(--muted); margin-bottom:6px;
-}
-.kpi.accent .kpi-label{color:rgba(216,243,220,.72)}
-.kpi-value{font-size:32px; font-weight:800; letter-spacing:-.035em; line-height:1.1; color:var(--petrol)}
-.kpi.accent .kpi-value{color:#fff}
-.kpi-value small{font-size:15px; font-weight:600; color:var(--muted); margin-left:2px}
-.kpi.accent .kpi-value small{color:rgba(216,243,220,.7)}
-.kpi-sub{font-size:12.5px; color:var(--muted); margin-top:8px; font-weight:500}
-.kpi.accent .kpi-sub{color:rgba(216,243,220,.75)}
-.kpi-bar{height:5px; border-radius:100px; background:var(--mint-soft); margin-top:14px; overflow:hidden}
-.kpi-bar i{display:block; height:100%; border-radius:100px; background:linear-gradient(90deg,var(--forest),var(--leaf))}
-.kpi.accent .kpi-bar{background:rgba(216,243,220,.18)}
-.kpi.accent .kpi-bar i{background:linear-gradient(90deg,var(--mint),var(--leaf))}
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--slate-900);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
 
-.charts-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:18px}
-.card{
-  background:var(--card); border-radius:var(--radius);
-  padding:22px 24px 20px; box-shadow:var(--shadow);
-  border:1px solid rgba(227,239,231,.9);
-}
-.card.span-2{grid-column:span 2}
-.card-head{display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:18px}
-.card-title{font-size:14.5px; font-weight:700; color:var(--petrol); letter-spacing:-.01em}
-.card-desc{font-size:12px; color:var(--muted); margin-top:3px; font-weight:500}
-.card-badge{
-  font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
-  padding:5px 11px; border-radius:100px; background:var(--mint-soft); color:var(--forest); white-space:nowrap;
-}
-.chart-box{position:relative; height:290px}
-.chart-box.tall{height:360px}
-.chart-box.short{height:250px}
+    h1, h2, h3, .kpi-value { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
 
-.dia-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:10px}
-.dia-card{
-  background:linear-gradient(135deg,#f6fcf7 0%,#eef9f1 100%);
-  border:1px solid var(--mint-mid); border-radius:var(--radius-sm);
-  padding:14px 12px; text-align:center; transition:transform .2s ease;
-}
-.dia-card.pico{
-  background:linear-gradient(135deg,var(--petrol) 0%,var(--forest) 100%); color:#fff;
-  border-color:transparent; transform:translateY(-2px);
-  box-shadow:0 6px 16px rgba(27,67,50,.18);
-}
-.dia-label{font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--muted)}
-.dia-card.pico .dia-label{color:rgba(216,243,220,.75)}
-.dia-value{font-size:22px; font-weight:800; letter-spacing:-.02em; color:var(--petrol); line-height:1.2; margin-top:4px}
-.dia-card.pico .dia-value{color:#fff}
-.dia-sub{font-size:10px; font-weight:600; color:var(--muted); margin-top:2px}
-.dia-card.pico .dia-sub{color:var(--mint)}
+    .container { max-width: 1400px; margin: 0 auto; padding: 24px 28px 48px; }
 
-.tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px}
-.tab{
-  font-family:inherit; font-size:12.5px; font-weight:600; padding:9px 17px; border-radius:100px;
-  border:1px solid var(--line); background:#fff; color:var(--ink-soft); cursor:pointer;
-  transition:all .2s ease; display:inline-flex; align-items:center; gap:7px;
-}
-.tab svg{width:14px;height:14px}
-.tab:hover{border-color:var(--mint-mid); background:var(--mint-bg); color:var(--forest)}
-.tab.active{
-  background:linear-gradient(135deg,var(--petrol),var(--forest));
-  border-color:transparent; color:#fff; box-shadow:0 6px 16px rgba(27,67,50,.22);
-}
-.filter-bar{
-  display:flex; align-items:center; gap:12px; margin-bottom:16px;
-  padding:13px 18px; background:var(--mint-bg); border-radius:var(--radius-sm);
-  border:1px solid var(--line); flex-wrap:wrap;
-}
-.filter-bar label{
-  font-size:12px; font-weight:600; color:var(--ink-soft);
-  display:flex; align-items:center; gap:6px;
-}
-.filter-bar label svg{width:14px;height:14px; color:var(--forest)}
-.filter-bar select{
-  font-family:inherit; font-size:12.5px; font-weight:600;
-  padding:7px 32px 7px 12px; border-radius:8px;
-  border:1px solid var(--line); background:#fff; color:var(--ink);
-  cursor:pointer; appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232d6a4f' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat:no-repeat; background-position:right 10px center; background-size:12px;
-  min-width:200px; max-width:100%;
-}
-.filter-bar select:focus{outline:2px solid var(--mint-mid); outline-offset:1px}
-.filter-reset{
-  font-family:inherit; font-size:11.5px; font-weight:700;
-  padding:7px 14px; border-radius:8px; border:1px solid var(--line);
-  background:#fff; color:var(--muted); cursor:pointer; transition:all .2s ease;
-}
-.filter-reset:hover{color:var(--forest); border-color:var(--mint-mid)}
-.table-wrap{overflow-x:auto; border-radius:var(--radius-sm)}
-table{width:100%; border-collapse:separate; border-spacing:0; font-size:13.5px; min-width:640px}
-thead th{
-  background:var(--petrol); color:var(--mint-soft); font-size:10.5px; font-weight:700;
-  text-transform:uppercase; letter-spacing:.09em; padding:13px 16px; text-align:left; white-space:nowrap;
-}
-thead th:first-child{border-radius:var(--radius-sm) 0 0 0}
-thead th:last-child{border-radius:0 var(--radius-sm) 0 0; text-align:left}
-thead th.num{text-align:right}
-tbody td{
-  padding:13px 16px; border-bottom:1px solid var(--line); color:var(--ink-soft);
-  font-weight:500; vertical-align:middle;
-}
-tbody tr:last-child td{border-bottom:none}
-tbody tr{transition:background .16s ease}
-tbody tr:hover{background:#f8fcfa}
-td.item{font-weight:600; color:var(--petrol); font-size:13.5px; white-space:nowrap}
-td.num{text-align:right; font-variant-numeric:tabular-nums; font-weight:600}
-td.num.m2{color:var(--petrol); font-weight:800; font-size:14px}
-td.dist{min-width:180px}
-.bar-cell{display:flex; align-items:center; gap:10px}
-.bar-track{flex:1; height:8px; background:var(--mint-bg); border-radius:100px; overflow:hidden; min-width:80px}
-.bar-fill{height:100%; border-radius:100px; background:linear-gradient(90deg,var(--forest),var(--leaf)); transition:width .8s cubic-bezier(.22,1,.36,1)}
-.bar-pct{font-size:11px; font-weight:800; color:var(--forest); min-width:48px; text-align:right; font-variant-numeric:tabular-nums}
-tbody tr.total-row td{
-  background:var(--mint-soft); color:var(--petrol); font-weight:800;
-  border-top:2px solid var(--mint-mid);
-}
-tbody tr.total-row td.item{color:var(--forest)}
-.table-foot{
-  display:flex; align-items:center; gap:9px; margin-top:16px; padding:13px 16px;
-  background:var(--mint-bg); border-radius:var(--radius-sm); font-size:12.5px;
-  color:var(--ink-soft); font-weight:500;
-}
-.table-foot svg{width:15px;height:15px; color:var(--emerald); flex-shrink:0}
+    .topbar {
+      background: linear-gradient(135deg, var(--green-900) 0%, var(--green-700) 100%);
+      color: #ffffff;
+      border-radius: var(--radius-lg);
+      padding: 22px 28px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
 
-.insights-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; align-items:start}
-.insight{
-  background:var(--card); border-radius:var(--radius);
-  border:1px solid rgba(227,239,231,.9); box-shadow:var(--shadow); overflow:hidden;
-  transition:box-shadow .25s ease, border-color .25s ease;
-}
-.insight:hover{border-color:var(--mint-mid)}
-.insight.open{box-shadow:var(--shadow-lg); border-color:var(--mint)}
-.insight-head{
-  width:100%; font-family:inherit; background:none; border:none; cursor:pointer;
-  display:flex; align-items:center; gap:13px; padding:17px 20px; text-align:left;
-}
-.insight-icon{
-  width:36px;height:36px; border-radius:11px; display:grid; place-items:center;
-  flex-shrink:0; background:var(--mint-soft); color:var(--forest);
-}
-.insight-icon svg{width:17px;height:17px}
-.insight-icon.up{background:var(--up-bg); color:var(--up)}
-.insight-icon.down{background:var(--down-bg); color:var(--down)}
-.insight-icon.neutral{background:var(--flat-bg); color:var(--flat)}
-.insight-titles{flex:1; min-width:0}
-.insight-title{
-  font-size:13.5px; font-weight:700; color:var(--petrol); letter-spacing:-.005em;
-  display:block; line-height:1.3;
-}
-.insight-sub{font-size:11.5px; color:var(--muted); font-weight:500; margin-top:2px; display:block}
-.insight-tag{
-  font-size:11.5px; font-weight:800; padding:5px 10px; border-radius:100px;
-  white-space:nowrap; font-variant-numeric:tabular-nums;
-}
-.insight-tag.up{background:var(--up-bg); color:var(--up)}
-.insight-tag.down{background:var(--down-bg); color:var(--down)}
-.insight-tag.flat{background:var(--flat-bg); color:var(--flat)}
-.insight-head .chev{width:17px;height:17px; color:var(--muted); flex-shrink:0; transition:transform .3s cubic-bezier(.22,1,.36,1)}
-.insight.open .chev{transform:rotate(180deg); color:var(--forest)}
-.insight-body{display:grid; grid-template-rows:0fr; transition:grid-template-rows .33s cubic-bezier(.22,1,.36,1)}
-.insight.open .insight-body{grid-template-rows:1fr}
-.insight-body > div{overflow:hidden}
-.insight-content{padding:0 20px 20px 69px; font-size:13px; color:var(--ink-soft); line-height:1.68}
-.insight-content p{margin-bottom:11px}
-.insight-content p:last-child{margin-bottom:0}
-.insight-content strong{color:var(--forest); font-weight:700}
-.insight-meta{display:flex; flex-wrap:wrap; gap:7px; margin-top:13px}
-.pill{
-  font-size:10.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
-  padding:5px 10px; border-radius:8px; background:var(--mint-bg); color:var(--forest);
-  border:1px solid var(--mint-soft);
-}
-.pill.warn{background:#fdf4e3; color:#96660f; border-color:#f7e6c4}
+    .topbar-left { display: flex; flex-direction: column; gap: 4px; }
 
-.footer{
-  max-width:1440px; margin:0 auto; padding:28px 40px 0; border-top:1px solid var(--line);
-  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap;
-  gap:14px; font-size:12px; color:var(--muted); font-weight:500;
-}
-.footer strong{color:var(--forest); font-weight:700}
+    .badge-org {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255, 255, 255, 0.14);
+      color: var(--green-100);
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em;
+      text-transform: uppercase; padding: 4px 10px; border-radius: 999px;
+      width: fit-content;
+    }
 
-@media (max-width:1180px){
-  .kpi-grid{grid-template-columns:repeat(2,1fr)}
-  .insights-grid{grid-template-columns:1fr}
-  .dia-grid{grid-template-columns:repeat(4,1fr)}
-}
-@media (max-width:900px){
-  .header{padding:34px 22px 78px}
-  .container{padding:0 22px; margin-top:-52px}
-  .footer{padding:24px 22px 0}
-  .charts-grid{grid-template-columns:1fr}
-  .card.span-2{grid-column:span 1}
-  .chart-box{height:280px}
-  .chart-box.tall{height:340px}
-  .ipasgo-logo{max-height:80px; border-bottom-left-radius:16px}
-  .header-inner{padding-right:80px}
-  .dia-grid{grid-template-columns:repeat(3,1fr)}
-}
-@media (max-width:620px){
-  .kpi-grid{grid-template-columns:1fr}
-  .header-inner{flex-direction:column; padding-right:0}
-  .header-period{width:100%}
-  .kpi-value{font-size:28px}
-  .insight-content{padding-left:20px}
-  .card{padding:18px 16px}
-  table{font-size:12.5px}
-  thead th,tbody td{padding:11px 12px}
-  .ipasgo-logo{max-height:60px; opacity:.5; pointer-events:none}
-  .dia-grid{grid-template-columns:repeat(2,1fr)}
-}
+    .topbar-left h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; color: #ffffff; }
+    .topbar-left p { font-size: 0.9rem; color: rgba(255, 255, 255, 0.85); }
 
-@keyframes rise{
-  from{opacity:0; transform:translateY(14px)}
-  to{opacity:1; transform:translateY(0)}
-}
-.kpi,.card,.insight{animation:rise .5s cubic-bezier(.22,1,.36,1) both}
-.kpi:nth-child(1){animation-delay:.02s}
-.kpi:nth-child(2){animation-delay:.06s}
-.kpi:nth-child(3){animation-delay:.10s}
-.kpi:nth-child(4){animation-delay:.14s}
-</style>
+    .topbar-right { display: flex; align-items: center; gap: 16px; margin-left: auto; }
+    .header-meta { text-align: right; font-size: 0.8rem; color: var(--green-100); }
+    .header-meta strong { display: block; color: #ffffff; font-size: 0.88rem; }
+
+    .logo-wrapper { display: flex; align-items: center; justify-content: center; }
+    .logo-wrapper img {
+      height: 54px; width: auto; display: block; object-fit: contain;
+      mix-blend-mode: multiply;
+    }
+
+    .action-bar {
+      background: var(--surface);
+      border: 1px solid var(--green-200);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow-sm);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+    }
+
+    .action-buttons { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 18px; border-radius: var(--radius-sm);
+      font-size: 0.88rem; font-weight: 600; cursor: pointer;
+      border: none; transition: all 0.18s ease; font-family: inherit;
+    }
+
+    .btn-primary { background-color: var(--green-700); color: #ffffff; box-shadow: 0 2px 6px rgba(21, 122, 68, 0.25); }
+    .btn-primary:hover { background-color: var(--green-800); transform: translateY(-1px); }
+    .btn-outline { background-color: var(--green-50); color: var(--green-800); border: 1px solid var(--green-600); }
+    .btn-outline:hover { background-color: var(--green-100); }
+    .btn-ghost { background-color: transparent; color: var(--slate-700); border: 1px solid var(--slate-300); }
+    .btn-ghost:hover { background-color: #f8fafc; }
+
+    #excelInput { display: none; }
+
+    .file-status {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.84rem; color: var(--slate-700);
+      background: var(--green-50);
+      border: 1px dashed var(--green-600);
+      padding: 8px 14px; border-radius: var(--radius-sm);
+    }
+
+    .status-dot { width: 9px; height: 9px; border-radius: 50%; background-color: var(--green-600); flex-shrink: 0; }
+
+    .instructions-panel {
+      background: var(--green-50);
+      border-left: 4px solid var(--green-700);
+      border-top: 1px solid var(--green-200);
+      border-right: 1px solid var(--green-200);
+      border-bottom: 1px solid var(--green-200);
+      border-radius: var(--radius-md);
+      padding: 14px 20px; margin-bottom: 22px;
+      font-size: 0.85rem; color: var(--slate-700);
+    }
+
+    .instructions-panel summary {
+      font-weight: 700; color: var(--green-900); cursor: pointer;
+      list-style: none; display: flex; align-items: center; justify-content: space-between;
+    }
+    .instructions-panel summary::-webkit-details-marker { display: none; }
+
+    .instructions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px; margin-top: 12px; padding-top: 12px;
+      border-top: 1px solid var(--green-200);
+    }
+
+    .instruction-item strong { display: block; color: var(--green-800); margin-bottom: 2px; }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 24px; }
+    @media (max-width: 1024px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 580px) { .kpi-grid { grid-template-columns: 1fr; } }
+
+    .kpi-card {
+      background: var(--surface); border-radius: var(--radius-md);
+      padding: 20px 22px; border: 1px solid var(--green-200);
+      box-shadow: var(--shadow-sm); position: relative; overflow: hidden;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+    .kpi-card::before {
+      content: ""; position: absolute; top: 0; left: 0;
+      width: 5px; height: 100%; background: var(--green-600);
+    }
+
+    .kpi-card.kpi-success::before { background: var(--green-600); }
+    .kpi-card.kpi-danger::before  { background: var(--red-600); }
+    .kpi-card.kpi-warning::before { background: var(--amber-600); }
+
+    .kpi-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+
+    .kpi-title {
+      font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.04em; color: var(--slate-500);
+    }
+
+    .kpi-badge {
+      font-size: 0.75rem; font-weight: 700; padding: 3px 8px;
+      border-radius: 999px; background: var(--green-100); color: var(--green-800);
+    }
+    .kpi-badge.danger { background: var(--red-100); color: var(--red-600); }
+    .kpi-badge.warning { background: var(--amber-100); color: var(--amber-600); }
+
+    .kpi-value { font-size: 2rem; font-weight: 800; color: var(--slate-900); line-height: 1.15; margin-bottom: 6px; }
+    .kpi-sub { font-size: 0.82rem; color: var(--slate-500); }
+
+    .charts-grid { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 20px; margin-bottom: 24px; }
+    .charts-grid-bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+    @media (max-width: 980px) { .charts-grid, .charts-grid-bottom { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--surface); border-radius: var(--radius-md);
+      border: 1px solid var(--green-200); padding: 20px 22px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
+    }
+
+    .card-title { font-size: 1.02rem; font-weight: 700; color: var(--green-950); }
+    .card-subtitle { font-size: 0.8rem; color: var(--slate-500); margin-top: 2px; }
+
+    .chart-container { position: relative; height: 340px; width: 100%; }
+    .chart-container-sm { position: relative; height: 300px; width: 100%; }
+
+    .pdf-overlay {
+      position: fixed; inset: 0;
+      background: rgba(5, 46, 22, 0.65);
+      backdrop-filter: blur(3px);
+      display: none; align-items: center; justify-content: center;
+      z-index: 9999; color: #ffffff; flex-direction: column;
+      gap: 12px; font-weight: 600;
+    }
+
+    .pdf-overlay.active { display: flex; }
+
+    .spinner {
+      width: 40px; height: 40px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #ffffff; border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media print {
+      body {
+        background: #ffffff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .container { max-width: 100%; padding: 0; }
+      .action-bar, .instructions-panel, .no-print { display: none !important; }
+      .card, .kpi-card, .topbar { break-inside: avoid; box-shadow: none !important; }
+    }
+  </style>
 </head>
 <body>
 
-<header class="header">
-  <img src="https://play-lh.googleusercontent.com/nNX3uE1J5d2IA3aywlINCxcfc-y2uKxo5QcH4GFK1R4AJZj_4RhlG6OYL6_78pAY1lsAWZrblOuiENNj8WDgGw=w240-h480-rw"
-       alt="Ipasgo Logo" class="ipasgo-logo">
-  <div class="header-inner">
-    <div>
-      <div class="header-eyebrow">
-        <i data-lucide="shield-check"></i>
-        Relatório Setorial · OUVIDORIA
-      </div>
-      <h1>Painel Executivo de <span>Demandas</span></h1>
-      <p>
-        Monitoramento executivo das demandas registradas na Central de Relacionamento
-        entre 16 e 23 de novembro de 2026 — assuntos, áreas demandadas
-        e cumprimento de prazo.
-      </p>
-    </div>
-    <div class="header-period">
-      <div class="hp-icon"><i data-lucide="calendar-range"></i></div>
-      <div>
-        <div class="hp-label">Período analisado</div>
-        <div class="hp-value">16 <em>a</em> 23/11/2026</div>
-      </div>
-    </div>
+  <div id="pdfOverlay" class="pdf-overlay">
+    <div class="spinner"></div>
+    <span id="pdfOverlayText">Gerando relatório executivo em PDF...</span>
   </div>
-</header>
 
-<div class="container">
+  <div class="container" id="dashboardReportArea">
 
-  <!-- KPIs -->
-  <section class="section">
-    <div class="kpi-grid">
-      <div class="kpi accent">
-        <div class="kpi-top">
-          <div class="kpi-icon"><i data-lucide="inbox"></i></div>
-          <span class="kpi-chip">269 registros</span>
-        </div>
-        <div class="kpi-label">Total de Demandas</div>
-        <div class="kpi-value">269 <small>demandas</small></div>
-        <div class="kpi-sub">Período de 16 a 23/11/2026</div>
-        <div class="kpi-bar"><i style="width:100%"></i></div>
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="badge-org">Gestão de Atendimento &amp; Ouvidoria</span>
+        <h1>Painel de Monitoramento de Demandas</h1>
+        <p>Acompanhamento de solicitações por área demandada, assunto e cumprimento de prazo (7 dias)</p>
       </div>
 
-      <div class="kpi">
-        <div class="kpi-top">
-          <div class="kpi-icon"><i data-lucide="check-circle-2"></i></div>
-          <span class="kpi-chip">91,8%</span>
+      <div class="topbar-right">
+        <div class="header-meta">
+          <strong id="reportPeriodLabel">Período de Referência: Dia 23 a Dia 27</strong>
+          <span id="reportGeneratedAt">Atualizado automaticamente</span>
         </div>
-        <div class="kpi-label">Dentro do Prazo (7 dias)</div>
-        <div class="kpi-value">247 <small>demandas</small></div>
-        <div class="kpi-sub">1 sem registro · 21 fora do prazo</div>
-        <div class="kpi-bar"><i style="width:91.8%"></i></div>
+        <div class="logo-wrapper" title="IPASGO Saúde">
+          <img src="https://play-lh.googleusercontent.com/nNX3uE1J5d2IA3aywlINCxcfc-y2uKxo5QcH4GFK1R4AJZj_4RhlG6OYL6_78pAY1lsAWZrblOuiENNj8WDgGw=w240-h480-rw" srcset="https://play-lh.googleusercontent.com/nNX3uE1J5d2IA3aywlINCxcfc-y2uKxo5QcH4GFK1R4AJZj_4RhlG6OYL6_78pAY1lsAWZrblOuiENNj8WDgGw=w480-h960-rw 2x" alt="Logo IPASGO Saúde" crossorigin="anonymous">
+        </div>
+      </div>
+    </header>
+
+    <section class="action-bar no-print" aria-label="Controles de importação e exportação">
+      <div class="action-buttons">
+        <input type="file" id="excelInput" accept=".xlsx,.xls" />
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('excelInput').click()">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          Importar Planilha (.xlsx)
+        </button>
+
+        <button type="button" class="btn btn-outline" onclick="exportarPDF()">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          Gerar Relatório PDF
+        </button>
+
+        <button type="button" class="btn btn-ghost" onclick="window.print()" title="Imprimir ou Salvar PDF pelo navegador">
+          <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          Imprimir
+        </button>
       </div>
 
-      <div class="kpi">
-        <div class="kpi-top">
-          <div class="kpi-icon"><i data-lucide="alert-triangle"></i></div>
-          <span class="kpi-chip up">7,8%</span>
+      <div class="file-status">
+        <span class="status-dot"></span>
+        <span id="fileStatusText">Base carregada: <strong>Dia 23 a dia 27 2.xlsx</strong> (292 demandas consolidadas)</span>
+      </div>
+    </section>
+
+    <details class="instructions-panel no-print">
+      <summary>
+        <span>Instruções rápidas de uso (Importação de Excel e Geração de PDF)</span>
+        <span style="font-size: 0.78rem; color: var(--green-700);">Clique para expandir / recolher</span>
+      </summary>
+      <div class="instructions-grid">
+        <div class="instruction-item">
+          <strong>1. Importar Arquivo Excel (.xlsx)</strong>
+          Clique em <em>"Importar Planilha (.xlsx)"</em> e selecione o arquivo (ex.: <code>Dia 23 a dia 27 2.xlsx</code>). O painel lê a aba correspondente (ou a primeira aba) e normaliza espaços, acentos e variações de grafia automaticamente.
         </div>
-        <div class="kpi-label">Fora do Prazo</div>
-        <div class="kpi-value">21 <small>demandas</small></div>
-        <div class="kpi-sub">7,8% do total de 269 demandas</div>
-        <div class="kpi-bar"><i style="width:7.8%"></i></div>
+        <div class="instruction-item">
+          <strong>2. Visualizar Indicadores e Gráficos</strong>
+          Os KPIs e os quatro gráficos são recalculados automaticamente a partir da base importada. Os valores absolutos e os percentuais são exibidos diretamente sobre os gráficos.
+        </div>
+        <div class="instruction-item">
+          <strong>3. Gerar Relatório em PDF</strong>
+          Clique em <em>"Gerar Relatório PDF"</em> para baixar automaticamente um documento contendo o cabeçalho oficial com o logotipo do IPASGO, os indicadores e os gráficos.
+        </div>
+      </div>
+    </details>
+
+    <section class="kpi-grid" aria-label="Indicadores principais">
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-title">Total de Demandas</span>
+          <span class="kpi-badge" id="kpiTotalRef">Base Consolidada</span>
+        </div>
+        <div class="kpi-value" id="kpiTotal">0</div>
+        <div class="kpi-sub" id="kpiTotalSub">Distribuídas em 0 áreas demandadas</div>
       </div>
 
-      <div class="kpi">
-        <div class="kpi-top">
-          <div class="kpi-icon"><i data-lucide="shield-check"></i></div>
-          <span class="kpi-chip">21,6%</span>
+      <div class="kpi-card kpi-success">
+        <div class="kpi-header">
+          <span class="kpi-title">Dentro do Prazo (7 Dias)</span>
+          <span class="kpi-badge" id="kpiDentroPct">0%</span>
         </div>
-        <div class="kpi-label">Assunto líder</div>
-        <div class="kpi-value">AUDITORIA AUTORIZATIVA</div>
-        <div class="kpi-sub">58 demandas · seguido de AGENDAMENTO DE CONSULTA (30)</div>
-        <div class="kpi-bar"><i style="width:21.6%"></i></div>
+        <div class="kpi-value" id="kpiDentro">0</div>
+        <div class="kpi-sub">Atendimentos concluídos no SLA de 7 dias</div>
       </div>
-    </div>
-  </section>
 
-  <!-- CHARTS -->
-  <section class="section">
-    <div class="section-head">
-      <h2><i data-lucide="bar-chart-3"></i> Visualização Gráfica</h2>
-      <span class="rule"></span>
-      <span class="hint">Contagens reais das 269 demandas · 16 a 23/11/2026</span>
-    </div>
+      <div class="kpi-card kpi-danger">
+        <div class="kpi-header">
+          <span class="kpi-title">Fora do Prazo</span>
+          <span class="kpi-badge danger" id="kpiForaPct">0%</span>
+        </div>
+        <div class="kpi-value" id="kpiFora">0</div>
+        <div class="kpi-sub">Demandas que excederam o prazo de 7 dias</div>
+      </div>
+    </section>
 
-    <div class="charts-grid">
+    <section class="charts-grid" aria-label="Gráficos por área e prazo">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Demandas por Área Demandada (Top 12)</h2>
+            <p class="card-subtitle">Volume total de solicitações com participação percentual sobre a base</p>
+          </div>
+        </div>
+        <div class="chart-container">
+          <canvas id="chartAreas"></canvas>
+        </div>
+      </div>
 
       <div class="card">
-        <div class="card-head">
+        <div class="card-header">
           <div>
-            <div class="card-title">Distribuição por Tema</div>
-            <div class="card-desc">Não informado na planilha 16 a 23.xlsx</div>
+            <h2 class="card-title">Cumprimento do Prazo (SLA 7 Dias)</h2>
+            <p class="card-subtitle">Proporção entre demandas dentro do prazo, fora do prazo e não informadas</p>
           </div>
-          <span class="card-badge">269 demandas</span>
         </div>
-        <div class="chart-box"><canvas id="chartTema"></canvas></div>
+        <div class="chart-container">
+          <canvas id="chartPrazo"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <section class="charts-grid-bottom" aria-label="Gráficos de assuntos e comparativo">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">Principais Assuntos Demandados (Top 10)</h2>
+            <p class="card-subtitle">Inclui Auditoria Autorizativa, Agendamento de Consulta, Mensalidade IPASGO, etc.</p>
+          </div>
+        </div>
+        <div class="chart-container-sm">
+          <canvas id="chartAssuntos"></canvas>
+        </div>
       </div>
 
       <div class="card">
-        <div class="card-head">
+        <div class="card-header">
           <div>
-            <div class="card-title">Distribuição por Tipo</div>
-            <div class="card-desc">Não informado na planilha 16 a 23.xlsx</div>
+            <h2 class="card-title">Dentro vs. Fora do Prazo nas Principais Áreas</h2>
+            <p class="card-subtitle">Comparativo de desempenho operacional nas 8 áreas de maior volume</p>
           </div>
-          <span class="card-badge">269 demandas</span>
         </div>
-        <div class="chart-box"><canvas id="chartTipo"></canvas></div>
-      </div>
-
-      <div class="card">
-        <div class="card-head">
-          <div>
-            <div class="card-title">Áreas Demandadas</div>
-            <div class="card-desc">Top 10 áreas-mãe por volume de demandas</div>
-          </div>
-          <span class="card-badge">Top 10</span>
+        <div class="chart-container-sm">
+          <canvas id="chartAreaPrazo"></canvas>
         </div>
-        <div class="chart-box tall"><canvas id="chartArea"></canvas></div>
       </div>
+    </section>
 
-      <div class="card">
-        <div class="card-head">
-          <div>
-            <div class="card-title">Meio de Acionamento</div>
-            <div class="card-desc">Não informado na planilha 16 a 23.xlsx</div>
-          </div>
-          <span class="card-badge">269 demandas</span>
-        </div>
-        <div class="chart-box tall"><canvas id="chartMeio"></canvas></div>
-      </div>
+  </div>
 
-      <div class="card span-2">
-        <div class="card-head">
-          <div>
-            <div class="card-title">Top 10 Assuntos</div>
-            <div class="card-desc">Assuntos mais recorrentes nas 269 demandas</div>
-          </div>
-          <span class="card-badge">Top 10</span>
-        </div>
-        <div class="chart-box tall"><canvas id="chartAssunto"></canvas></div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- TABELA COM ABAS E FILTROS -->
-  <section class="section">
-    <div class="section-head">
-      <h2><i data-lucide="table-2"></i> Tabela Detalhada por Dimensão</h2>
-      <span class="rule"></span>
-      <span class="hint">Selecione uma aba e refine com o filtro correspondente</span>
-    </div>
-
-    <div class="card">
-      <div class="tabs" id="tabs">
-        <button class="tab active" data-key="temas"><i data-lucide="layers"></i> Temas</button>
-        <button class="tab" data-key="tipos"><i data-lucide="tag"></i> Tipos</button>
-        <button class="tab" data-key="assuntos"><i data-lucide="file-text"></i> Assuntos</button>
-        <button class="tab" data-key="areas"><i data-lucide="building-2"></i> Áreas</button>
-        <button class="tab" data-key="meios"><i data-lucide="send"></i> Meio</button>
-        <button class="tab" data-key="prazos"><i data-lucide="clock"></i> Prazo</button>
-      </div>
-
-      <div class="filter-bar" id="filterBar">
-        <label id="filterLabel">
-          <i data-lucide="filter"></i>
-          <span id="filterLabelText">Filtrar por Tipo:</span>
-        </label>
-        <select id="filterSelect"></select>
-        <button class="filter-reset" id="filterReset" type="button">Limpar filtro</button>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th id="th-item">Categoria</th>
-              <th class="num">Demandas</th>
-              <th class="num">% do Total</th>
-              <th>Distribuição</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-      </div>
-
-      <div class="table-foot">
-        <i data-lucide="info"></i>
-        <span id="tableNote">Valores em quantidade de demandas registradas entre 16 e 23/11/2026.</span>
-      </div>
-    </div>
-  </section>
-
-</div>
-
-<footer class="footer">
-  <span><strong>Relatório Setorial OUVIDORIA</strong> · Painel Executivo de Demandas</span>
-  <span>Fonte: 16 a 23.xlsx · Período: 16 a 23/11/2026</span>
-</footer>
-
-<script>
-Chart.register(ChartDataLabels);
-
-/* ============================================================
-   BASE DE DADOS — 269 demandas agregadas da planilha 16 a 23.xlsx
-   ============================================================ */
-const DADOS = {
-  total: 269,
-  dias: [
-    {dia:'16/11', qtd:0, dentro:0, fora:0, blank:0},
-    {dia:'17/11', qtd:0, dentro:0, fora:0, blank:0},
-    {dia:'18/11', qtd:0, dentro:0, fora:0, blank:0},
-    {dia:'19/11', qtd:0, dentro:0, fora:0, blank:0},
-    {dia:'20/11', qtd:0, dentro:0, fora:0, blank:0},
-    {dia:'21/11', qtd:0, dentro:0, fora:0, blank:0},
-    {dia:'23/11', qtd:0, dentro:0, fora:0, blank:0}
-  ],
-  tipos: [
-    {item:'RECLAMAÇÃO', qtd:273},
-    {item:'REANÁLISE',  qtd:65},
-    {item:'CONSULTA',   qtd:16},
-    {item:'ELOGIO',     qtd:1}
-  ],
-  temas: [
-    {item:'Rede Credenciada',       qtd:132},
-    {item:'Cobertura Assistencial', qtd:100},
-    {item:'Financeiro',             qtd:73},
-    {item:'Administrativo',         qtd:46},
-    {item:'SAC',                    qtd:4}
-  ],
-  areas: [{"item": "COARA", "qtd": 63}, {"item": "COGAT", "qtd": 58}, {"item": "CODIN", "qtd": 35}, {"item": "COPRE", "qtd": 32}, {"item": "COPES", "qtd": 16}, {"item": "CORET", "qtd": 14}, {"item": "GEFAC", "qtd": 13}, {"item": "COARR", "qtd": 11}, {"item": "CONEG", "qtd": 8}, {"item": "COGER", "qtd": 3}, {"item": "Outros", "qtd": 16}],
-  meios: [
-    {item:'Email',         qtd:251},
-    {item:'Presencial',    qtd:63},
-    {item:'Reclame aqui',  qtd:40},
-    {item:'Internet',      qtd:1}
-  ],
-  assuntos: [{"item": "AUDITORIA AUTORIZATIVA", "qtd": 58}, {"item": "AGENDAMENTO DE CONSULTA", "qtd": 30}, {"item": "PROGRAMAS ESPECIAIS DE ASSISTÊNCIA", "qtd": 24}, {"item": "CADASTRO DE BENEFICIÁRIO", "qtd": 18}, {"item": "FATURAMENTO PRESTADOR", "qtd": 12}, {"item": "AGENDAMENTO DE PROCEDIMENTO", "qtd": 9}, {"item": "QUALIDADE DO SERVIÇO PRESTADO", "qtd": 8}, {"item": "REEMBOLSO DE DESPESA MÉDICA", "qtd": 8}, {"item": "COBRANÇA INDEVIDA DO PRESTADOR", "qtd": 8}, {"item": "COBERTURA DE PROCEDIMENTO", "qtd": 8}, {"item": "Outros", "qtd": 86}],
-  prazos: [
-    {item:'Dentro do prazo', qtd:247},
-    {item:'Fora do prazo',   qtd:21},
-    {item:'Sem registro',    qtd:1}
-  ]
-};
-
-/* ============================================================
-   FILTROS — cross-tabs baseados na planilha 16 a 23.xlsx
-   ============================================================ */
-const CROSSTABS = {
-  temas: {
-    filterField:'tipo', filterLabel:'Tipo',
-    options:['Todos','RECLAMAÇÃO','REANÁLISE','CONSULTA','ELOGIO'],
-    data: {
-      'Todos': DADOS.temas,
-      'RECLAMAÇÃO': [
-        {item:'Rede Credenciada',       qtd:110},
-        {item:'Cobertura Assistencial', qtd:73},
-        {item:'Financeiro',             qtd:48},
-        {item:'Administrativo',         qtd:39},
-        {item:'SAC',                    qtd:3}
-      ],
-      'REANÁLISE': [
-        {item:'Cobertura Assistencial', qtd:27},
-        {item:'Rede Credenciada',       qtd:22},
-        {item:'Financeiro',             qtd:10},
-        {item:'Administrativo',         qtd:6},
-        {item:'SAC',                    qtd:0}
-      ],
-      'CONSULTA': [
-        {item:'Financeiro',             qtd:15},
-        {item:'Administrativo',         qtd:1},
-        {item:'Rede Credenciada',       qtd:0},
-        {item:'Cobertura Assistencial', qtd:0},
-        {item:'SAC',                    qtd:0}
-      ],
-      'ELOGIO': [
-        {item:'Rede Credenciada',       qtd:0},
-        {item:'Cobertura Assistencial', qtd:0},
-        {item:'Financeiro',             qtd:0},
-        {item:'Administrativo',         qtd:0},
-        {item:'SAC',                    qtd:1}
-      ]
+  <script>
+    if (window.ChartDataLabels) {
+      Chart.register(ChartDataLabels);
     }
-  },
-  tipos: {
-    filterField:'tema', filterLabel:'Tema',
-    options:['Todos','Rede Credenciada','Cobertura Assistencial','Financeiro','Administrativo','SAC'],
-    data: {
-      'Todos': DADOS.tipos,
-      'Rede Credenciada': [
-        {item:'RECLAMAÇÃO', qtd:110},
-        {item:'REANÁLISE',  qtd:22},
-        {item:'CONSULTA',   qtd:0},
-        {item:'ELOGIO',     qtd:0}
-      ],
-      'Cobertura Assistencial': [
-        {item:'RECLAMAÇÃO', qtd:73},
-        {item:'REANÁLISE',  qtd:27},
-        {item:'CONSULTA',   qtd:0},
-        {item:'ELOGIO',     qtd:0}
-      ],
-      'Financeiro': [
-        {item:'RECLAMAÇÃO', qtd:48},
-        {item:'REANÁLISE',  qtd:10},
-        {item:'CONSULTA',   qtd:15},
-        {item:'ELOGIO',     qtd:0}
-      ],
-      'Administrativo': [
-        {item:'RECLAMAÇÃO', qtd:39},
-        {item:'REANÁLISE',  qtd:6},
-        {item:'CONSULTA',   qtd:1},
-        {item:'ELOGIO',     qtd:0}
-      ],
-      'SAC': [
-        {item:'RECLAMAÇÃO', qtd:3},
-        {item:'REANÁLISE',  qtd:0},
-        {item:'CONSULTA',   qtd:0},
-        {item:'ELOGIO',     qtd:1}
-      ]
-    }
-  },
-  assuntos: {
-    filterField:'prazo', filterLabel:'Prazo',
-    options:['Todos','Dentro do prazo','Fora do prazo','Sem registro'],
-    data: {
-      'Todos': DADOS.assuntos,
-      'Dentro do prazo': [{"item": "AUDITORIA AUTORIZATIVA", "qtd": 58}, {"item": "AGENDAMENTO DE CONSULTA", "qtd": 29}, {"item": "PROGRAMAS ESPECIAIS DE ASSISTÊNCIA", "qtd": 19}, {"item": "CADASTRO DE BENEFICIÁRIO", "qtd": 15}, {"item": "FATURAMENTO PRESTADOR", "qtd": 11}, {"item": "AGENDAMENTO DE PROCEDIMENTO", "qtd": 9}, {"item": "REEMBOLSO DE DESPESA MÉDICA", "qtd": 7}, {"item": "COBRANÇA INDEVIDA DO PRESTADOR", "qtd": 7}, {"item": "COBERTURA DE PROCEDIMENTO", "qtd": 7}, {"item": "QUALIDADE DO SERVIÇO PRESTADO", "qtd": 6}, {"item": "Outros", "qtd": 79}],
-      'Fora do prazo': [{"item": "PROGRAMAS ESPECIAIS DE ASSISTÊNCIA", "qtd": 5}, {"item": "CADASTRO DE BENEFICIÁRIO", "qtd": 3}, {"item": "QUALIDADE DO SERVIÇO PRESTADO", "qtd": 2}, {"item": "AGENDAMENTO DE CONSULTA", "qtd": 1}, {"item": "FATURAMENTO PRESTADOR", "qtd": 1}, {"item": "REEMBOLSO DE DESPESA MÉDICA", "qtd": 1}, {"item": "COBRANÇA INDEVIDA DO PRESTADOR", "qtd": 1}, {"item": "COBERTURA DE PROCEDIMENTO", "qtd": 1}, {"item": "Outros", "qtd": 6}],
-      'Sem registro': [{"item": "SOLICITAÇÃO DA ENTREGA DE MEDIÇÃO ONCOLÓGICA.", "qtd": 1}]
-    }
-  },
-  areas: {
-    filterField:'prazo', filterLabel:'Prazo',
-    options:['Todos','Dentro do prazo','Fora do prazo','Sem registro'],
-    data: {
-      'Todos': DADOS.areas,
-      'Dentro do prazo': [{"item": "COARA", "qtd": 63}, {"item": "COGAT", "qtd": 55}, {"item": "CODIN", "qtd": 34}, {"item": "COPRE", "qtd": 29}, {"item": "COPES", "qtd": 12}, {"item": "GEFAC", "qtd": 11}, {"item": "COARR", "qtd": 11}, {"item": "CORET", "qtd": 10}, {"item": "CONEG", "qtd": 6}, {"item": "COGER", "qtd": 3}, {"item": "Outros", "qtd": 13}],
-      'Fora do prazo': [{"item": "CORET", "qtd": 4}, {"item": "COGAT", "qtd": 3}, {"item": "COPRE", "qtd": 3}, {"item": "COPES", "qtd": 3}, {"item": "GEFAC", "qtd": 2}, {"item": "CONEG", "qtd": 2}, {"item": "CODIN", "qtd": 1}, {"item": "Outros", "qtd": 3}],
-      'Sem registro': [{"item": "COPES", "qtd": 1}]
-    }
-  },
-  meios: {
-    filterField:'tipo', filterLabel:'Tipo',
-    options:['Todos','RECLAMAÇÃO','REANÁLISE','CONSULTA','ELOGIO'],
-    data: {
-      'Todos': DADOS.meios,
-      'RECLAMAÇÃO': [
-        {item:'Email',         qtd:203},
-        {item:'Presencial',    qtd:48},
-        {item:'Reclame aqui',  qtd:21},
-        {item:'Internet',      qtd:1}
-      ],
-      'REANÁLISE': [
-        {item:'Email',         qtd:34},
-        {item:'Reclame aqui',  qtd:19},
-        {item:'Presencial',    qtd:12},
-        {item:'Internet',      qtd:0}
-      ],
-      'CONSULTA': [
-        {item:'Email',         qtd:14},
-        {item:'Presencial',    qtd:2},
-        {item:'Reclame aqui',  qtd:0},
-        {item:'Internet',      qtd:0}
-      ],
-      'ELOGIO': [
-        {item:'Email',         qtd:0},
-        {item:'Presencial',    qtd:0},
-        {item:'Reclame aqui',  qtd:0},
-        {item:'Internet',      qtd:0}
-      ]
-    }
-  },
-  prazos: {
-    filterField:'assunto', filterLabel:'Assunto',
-    options:['Todos','AUDITORIA AUTORIZATIVA','AGENDAMENTO DE CONSULTA','PROGRAMAS ESPECIAIS DE ASSISTÊNCIA','CADASTRO DE BENEFICIÁRIO','FATURAMENTO PRESTADOR'],
-    data: {
-      'Todos': DADOS.prazos,
-      'AUDITORIA AUTORIZATIVA': [
-        {item:'Dentro do prazo', qtd:58},
-        {item:'Fora do prazo',   qtd:0},
-        {item:'Sem registro',    qtd:0}
-      ],
-      'AGENDAMENTO DE CONSULTA': [
-        {item:'Dentro do prazo', qtd:29},
-        {item:'Fora do prazo',   qtd:1},
-        {item:'Sem registro',    qtd:0}
-      ],
-      'PROGRAMAS ESPECIAIS DE ASSISTÊNCIA': [
-        {item:'Dentro do prazo', qtd:19},
-        {item:'Fora do prazo',   qtd:5},
-        {item:'Sem registro',    qtd:0}
-      ],
-      'CADASTRO DE BENEFICIÁRIO': [
-        {item:'Dentro do prazo', qtd:15},
-        {item:'Fora do prazo',   qtd:3},
-        {item:'Sem registro',    qtd:0}
-      ],
-      'FATURAMENTO PRESTADOR': [
-        {item:'Dentro do prazo', qtd:11},
-        {item:'Fora do prazo',   qtd:1},
-        {item:'Sem registro',    qtd:0}
-      ]
-    }
-  }
-};
 
-const TABS = {
-  temas:    { field:'item', label:'Tema',    filterField:'tipo', filterLabel:'Tipo', chart:'chartTema',
-              note:'Dimensão de Tema não consta na planilha 16 a 23.xlsx (exibição de referência).' },
-  tipos:    { field:'item', label:'Tipo',    filterField:'tema', filterLabel:'Tema', chart:'chartTipo',
-              note:'Dimensão de Tipo não consta na planilha 16 a 23.xlsx (exibição de referência).' },
-  assuntos: { field:'item', label:'Assunto', filterField:'prazo', filterLabel:'Prazo', chart:'chartAssunto',
-              note:'Assuntos agrupados das 269 demandas de 16 a 23/11/2026; demais assuntos consolidados em "Outros".' },
-  areas:    { field:'item', label:'Área',    filterField:'prazo', filterLabel:'Prazo', chart:'chartArea',
-              note:'Áreas demandadas das 269 demandas (16 a 23/11/2026), consolidadas pela área-mãe.' },
-  meios:    { field:'item', label:'Meio de Acionamento', filterField:'tipo', filterLabel:'Tipo', chart:'chartMeio',
-              note:'Dimensão de Meio de Acionamento não consta na planilha 16 a 23.xlsx (exibição de referência).' },
-  prazos:   { field:'item', label:'Prazo',   filterField:'assunto', filterLabel:'Assunto', chart:null,
-              note:'Cumprimento do prazo de 7 dias sobre 269 demandas: 247 dentro do prazo, 21 fora do prazo e 1 sem registro.' }
-};
+    // Base atualizada: "Dia 23 a dia 27 2.xlsx" — 292 demandas (todas dentro do prazo)
+    const DEFAULT_RAW_ROWS = [
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"CAERP","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA, COPRE","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"CAERP","s":"TELECONSULTA ONLINE","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"REGULARIZAÇÃO DE DIVIDAS","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"SOLICITAÇÃO DE PARCELAMETO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"RECLAMAÇÃO DE COBRANÇAS","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"RECLAMAÇÃO DE COBRANÇAS","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"COPARTICIPAÇÃO IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"GEFAC","s":"FATURAMENTO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"COPARTICIPAÇÃO IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"PARCELAMENTO DE DÍVIDA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"GEFAC","s":"FATURAMENTO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"MENSALIDADE IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"MENSALIDADE IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"MENSALIDADE IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"GEFAC","s":"FATURAMENTO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"COBRANÇA DE VALORES","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"COBRANÇA DE VALORES","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"MENSALIDADE IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"MENSALIDADE IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"MENSALIDADE IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"PARCELAMENTO DE DÍVIDA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"COPARTICIPAÇÃO IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"COBRANÇA DE VALORES","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"CAPES","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"MENSALIDADE IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"PARCELAMENTO DE DÍVIDA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"PARCELAMENTO DE DÍVIDA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"MENSALIDADE IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"COBRANÇA DE VALORES","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"MENSALIDADE IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"GITEC","s":"ACESSO/OPERAÇÃO DE SISTEMAS","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"PARCELAMENTO DE DÍVIDA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"PARCELAMENTO DE DÍVIDA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"COPARTICIPAÇÃO IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"BLOQUEIO DE USUÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"RECLAMAÇÃO COBRANÇA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"MENSALIDADE IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"COPARTICIPAÇÃO IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"CAPES","s":"CADASTRO DE PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"EXAMES COMPLEMENTARES","p":"Dentro do prazo","t":null},
+      {"a":"CAPES","s":"TELECONSULTA ONLINE","p":"Dentro do prazo","t":null},
+      {"a":"CAERP","s":"TELECONSULTA ONLINE","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"COPARTICIPAÇÃO IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"MENSALIDADE IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"GEJUR","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"PROGRAMAS ESPECIAIS DE ASSISTÊNCIA","p":"Dentro do prazo","t":null},
+      {"a":"CAERP","s":"ATENDIMENTO PRESTADO","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"PARCELAMENTO DE DÍVIDA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"MENSALIDADE IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"PROGRAMAS ESPECIAIS DE ASSISTÊNCIA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"MENSALIDADE IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"ATENDIMENTO PRESTADO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"MENSALIDADE IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"COPARTICIPAÇÃO IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR","s":"PARCELAMENTO DE DÍVIDA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR, COPRE","s":"COBRANÇA DE VALORES","p":"Dentro do prazo","t":null},
+      {"a":"COARR, COPRE","s":"RECLAMAÇÃO SUSPENSÃO DE PLANO","p":"Dentro do prazo","t":null},
+      {"a":"COARR, GEFAC","s":"COPARTICIPAÇÃO IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARR, GEFAC","s":"FATURAMENTO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARR, COPRE","s":"BLOQUEIO DE USUÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COATE","s":"PROGRAMAS ESPECIAIS DE ASSISTÊNCIA","p":"Dentro do prazo","t":null},
+      {"a":"GEFAC","s":"QUALIDADE DO SERVIÇO PRESTADO","p":"Dentro do prazo","t":null},
+      {"a":"COATE","s":"PROGRAMAS ESPECIAIS DE ASSISTÊNCIA","p":"Dentro do prazo","t":null},
+      {"a":"COATE","s":"PROGRAMAS ESPECIAIS DE ASSISTÊNCIA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"CAERP","s":"ATENDIMENTO PRESTADO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COATE","s":"PROGRAMAS ESPECIAIS DE ASSISTÊNCIA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"SOLICITAÇÃO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"SOLICITAÇÃO DE AUTORIZAÇÃO DE EXAMES","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"SOLICITAÇÃO DE AUTORIZAÇÃO DE EXAMES","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"GEFAC","s":"FATURAMENTO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COARA , COGAT","s":"COBRANÇA INDEVIDA DO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"ACESSO/OPERAÇÃO DE SISTEMAS","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"GEFAC","s":"FATURAMENTO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA ODONTOLOGIA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA ODONTOLOGIA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"COBERTURA DE PROCEDIMENTO","p":"Dentro do prazo","t":null},
+      {"a":"GEFAC","s":"FATURAMENTO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"GEFAC","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"ATENDIMENTO NEGADO","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"FATURAMENTO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"GEFAC","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA, COATE","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"GEFAC","s":"FATURAMENTO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"CODIN, COARA","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"REDE DE PRESTADORES","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"QUALIDADE DO SERVIÇO PRESTADO","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"REDE DE PRESTADORES","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"COBERTURA DE PROCEDIMENTO","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"QUALIDADE DO SERVIÇO PRESTADO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"CADASTRO DE PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"QUALIDADE DO SERVIÇO PRESTADO","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"CREDENCIAMENTO/CONTRATAÇÃO DE PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"CADASTRO DE PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA ODONTOLOGIA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"FATURAMENTO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"GEFAC","s":"FATURAMENTO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"QUALIDADE DO SERVIÇO PRESTADO","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"AGENDAMENTO DE PROCEDIMENTO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"ATENDIMENTO NEGADO","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"COBRANÇA INDEVIDA DO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"TELECONSULTA ONLINE","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"CAERP","s":"AGENDAMENTO DE CONSULTA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"COBRANÇA INDEVIDA DO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"CREDENCIAMENTO/CONTRATAÇÃO DE PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"PROGRAMAS ESPECIAIS DE ASSISTÊNCIA","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"CREDENCIAMENTO/CONTRATAÇÃO DE PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"PROGRAMAS ESPECIAIS DE ASSISTÊNCIA","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"ATENDIMENTO PRESTADO","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"AGENDAMENTO DE PROCEDIMENTO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"ACOMODAÇÃO DE INTERNAÇÃO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"REDE DE PRESTADORES","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"ATENDIMENTO NEGADO","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"REEMBOLSO DE DESPESA MÉDICA","p":"Dentro do prazo","t":null},
+      {"a":"COGAT","s":"ATENDIMENTO NEGADO","p":"Dentro do prazo","t":null},
+      {"a":"COGAT, COARA","s":"AGENDAMENTO DE PROCEDIMENTO","p":"Dentro do prazo","t":null},
+      {"a":"GEFAC","s":"FATURAMENTO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COGAT, COARA","s":"REEMBOLSO DE DESPESA MÉDICA","p":"Dentro do prazo","t":null},
+      {"a":"COGER","s":"CREDENCIAMENTO/CONTRATAÇÃO DE PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"CONEG","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"GEFAC","s":"FATURAMENTO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"GEFAC","s":"FATURAMENTO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"GEFAC","s":"FATURAMENTO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"GEFAC","s":"FATURAMENTO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"GEFAC","s":"FATURAMENTO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"CONEG","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"CONEG","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"CONEG","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"CONEG","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COPES","s":"PROGRAMAS ESPECIAIS DE ASSISTÊNCIA","p":"Dentro do prazo","t":null},
+      {"a":"COPES","s":"PROGRAMAS ESPECIAIS DE ASSISTÊNCIA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COPES","s":"PROGRAMAS ESPECIAIS DE ASSISTÊNCIA","p":"Dentro do prazo","t":null},
+      {"a":"COPES","s":"PROGRAMAS ESPECIAIS DE ASSISTÊNCIA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COPES, COARA","s":"PROGRAMAS ESPECIAIS DE ASSISTÊNCIA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA ODONTOLOGIA","p":"Dentro do prazo","t":null},
+      {"a":"COPRE","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COPRE","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COPRE","s":"CARTÃO IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COPRE","s":"ATENDIMENTO PRESTADO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COPRE","s":"EXAMES COMPLEMENTARES","p":"Dentro do prazo","t":null},
+      {"a":"COPRE","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COPRE","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COPRE","s":"RECLAMAÇÃO CARTÃO","p":"Dentro do prazo","t":null},
+      {"a":"COPRE","s":"RECLAMAÇÃO EXAMES","p":"Dentro do prazo","t":null},
+      {"a":"COPRE","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COPRE","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COPRE","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COPRE","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"GEJUR","s":"AGENDAMENTO DE PROCEDIMENTO","p":"Dentro do prazo","t":null},
+      {"a":"COPRE","s":"EXAMES COMPLEMENTARES","p":"Dentro do prazo","t":null},
+      {"a":"COPRE","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COPRE","s":"CARTÃO IPASGO SAÚDE","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COPRE","s":"EXAMES COMPLEMENTARES","p":"Dentro do prazo","t":null},
+      {"a":"CORET","s":"COBERTURA DE PROCEDIMENTO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"CUMPRIMENTO DE DECISÃO JÚDIICAL","s":"COBERTURA DE PROCEDIMENTO","p":"Dentro do prazo","t":null},
+      {"a":"GEJUR, COPRE","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"GEJUR, SEGER","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA ODONTOLOGIA","p":"Dentro do prazo","t":null},
+      {"a":"GEJUR, SEGER","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COATE","s":"PROGRAMAS ESPECIAIS DE ASSISTÊNCIA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"SEGER","s":"CADASTRO DE BENEFICIÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"SEGER","s":"ATENDIMENTO DE USUÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"SEGER","s":"ATENDIMENTO DE USUÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA ODONTOLOGIA","p":"Dentro do prazo","t":null},
+      {"a":"SEGER","s":"ATENDIMENTO DE USUÁRIO","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"CAPES","s":"TELECONSULTA ONLINE","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"SEGER","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"SEGER, GEJUR","s":"COBRANÇA INDEVIDA DO PRESTADOR","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null},
+      {"a":"COARA","s":"AUDITORIA AUTORIZATIVA","p":"Dentro do prazo","t":null}
+    ];
 
-const state = {
-  activeTab: 'temas',
-  filters: { temas:'Todos', tipos:'Todos', assuntos:'Todos', areas:'Todos', meios:'Todos', prazos:'Todos' }
-};
+    let processedRecords = [];
+    let filteredRecords = [];
+    let reportedHeaderTotal = null;
+    let charts = {};
 
-const $ = id => document.getElementById(id);
-const fmtPct = v => v.toFixed(1).replace('.', ',') + '%';
+    // ------------------------------------------------------------------------
+    // 1. NORMALIZAÇÃO
+    // ------------------------------------------------------------------------
+    function cleanSpaces(str) {
+      if (str === null || str === undefined) return "";
+      return String(str)
+        .replace(/[\u00A0\u200B\t\r\n]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
 
-const charts = {};
+    function normalizeArea(rawArea) {
+      let val = cleanSpaces(rawArea).toUpperCase();
+      if (!val) return "NÃO INFORMADA";
+      val = val.replace(/[.,;:]+$/g, "").trim();
+      val = val.replace(/\s*-\s*/g, "-");
+      // Normaliza espaços ao redor de vírgulas em áreas compostas
+      val = val.replace(/\s*,\s*/g, ", ");
+      const areaAliases = { "COPRE-SUPORT": "COPRE-SUPORTE" };
+      return areaAliases[val] || val;
+    }
 
-function buildDoughnut(canvasId, colors){
-  return new Chart($(canvasId).getContext('2d'), {
-    type:'doughnut',
-    data:{ labels:[], datasets:[{
-      data:[], backgroundColor: colors, hoverBackgroundColor: colors,
-      borderColor:'#ffffff', borderWidth:3, hoverOffset:8
-    }]},
-    options:{
-      responsive:true, maintainAspectRatio:false, cutout:'56%',
-      layout:{ padding:{ top:6, bottom:6 } },
-      animation:{ animateRotate:true, duration:900 },
-      plugins:{
-        legend:{
-          position:'bottom',
-          labels:{ usePointStyle:true, pointStyle:'circle', boxWidth:8, boxHeight:8, padding:10,
-                   font:{ size:11, weight:'600', family:'Inter' }, color:'#3a5a48' }
+    function normalizeAssunto(rawAssunto) {
+      let val = cleanSpaces(rawAssunto).toUpperCase();
+      if (!val) return "NÃO INFORMADO";
+      val = val.replace(/\.+$/g, "").trim();
+      val = val.replace(/\s*\/\s*/g, "/");
+      return val;
+    }
+
+    function normalizePrazo(rawPrazo) {
+      const val = cleanSpaces(rawPrazo).toLowerCase();
+      if (!val) return "Não informado";
+      if (val.includes("dentro")) return "Dentro do prazo";
+      if (val.includes("fora")) return "Fora do prazo";
+      return "Não informado";
+    }
+
+    function processDataset(rawRows) {
+      const validRows = rawRows.filter(r => cleanSpaces(r.a) !== "" || cleanSpaces(r.s) !== "");
+      if (validRows.length === 0) return [];
+
+      const numericTotals = validRows
+        .map(r => (r.t !== null && r.t !== undefined && !isNaN(Number(r.t)) && Number(r.t) > 0) ? Number(r.t) : null);
+
+      const nonNullTotals = numericTotals.filter(v => v !== null);
+      reportedHeaderTotal = null;
+
+      const isConsolidatedFirstRow =
+        nonNullTotals.length === 1 &&
+        numericTotals[0] !== null &&
+        Math.round(numericTotals[0]) === validRows.length;
+
+      if (isConsolidatedFirstRow) {
+        reportedHeaderTotal = Math.round(numericTotals[0]);
+      }
+
+      return validRows.map((row, index) => {
+        let qtd = 1;
+        if (!isConsolidatedFirstRow && numericTotals[index] !== null) {
+          qtd = numericTotals[index];
+        }
+        return {
+          id: index + 1,
+          area: normalizeArea(row.a),
+          assunto: normalizeAssunto(row.s),
+          prazo: normalizePrazo(row.p),
+          qtd: qtd
+        };
+      });
+    }
+
+    // ------------------------------------------------------------------------
+    // 2. IMPORTAÇÃO DE EXCEL
+    // ------------------------------------------------------------------------
+    document.getElementById("excelInput").addEventListener("change", function (event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: "array" });
+
+          const candidates = ["16 a 23", "Dia 23 a dia 27 2", "Planilha1"];
+          let targetSheetName = workbook.SheetNames.find(n => candidates.includes(n));
+          if (!targetSheetName) targetSheetName = workbook.SheetNames[0];
+
+          const worksheet = workbook.Sheets[targetSheetName];
+          const jsonRows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+          if (!jsonRows || jsonRows.length === 0) {
+            alert("A planilha selecionada está vazia.");
+            return;
+          }
+
+          const mappedRows = jsonRows.map(row => {
+            let area = "", assunto = "", prazo = "", total = null;
+            for (const [key, value] of Object.entries(row)) {
+              const k = key.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+              if (k.includes("area")) area = value;
+              else if (k.includes("assunto")) assunto = value;
+              else if (k.includes("prazo")) prazo = value;
+              else if (k.includes("total")) {
+                const num = parseFloat(String(value).replace(",", "."));
+                total = isNaN(num) ? null : num;
+              }
+            }
+            return { a: area, s: assunto, p: prazo, t: total };
+          });
+
+          processedRecords = processDataset(mappedRows);
+          if (processedRecords.length === 0) {
+            alert("Não foram encontrados registros válidos nas colunas Área demandada e Assunto.");
+            return;
+          }
+
+          const totalSum = processedRecords.reduce((acc, item) => acc + item.qtd, 0);
+          document.getElementById("fileStatusText").innerHTML =
+            `Arquivo importado: <strong>${file.name}</strong> (Aba "${targetSheetName}" • ${totalSum} demandas)`;
+
+          const cleanTitle = file.name.replace(/\.[^/.]+$/, "");
+          document.getElementById("reportPeriodLabel").textContent = `Período de Referência: ${cleanTitle}`;
+
+          applyFilters();
+        } catch (err) {
+          console.error(err);
+          alert("Erro ao ler o arquivo Excel. Verifique se o formato .xlsx é válido.");
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    // ------------------------------------------------------------------------
+    // 3. KPIs E GRÁFICOS
+    // ------------------------------------------------------------------------
+    function applyFilters() {
+      filteredRecords = processedRecords;
+      updateKPIs(filteredRecords);
+      updateCharts(filteredRecords);
+    }
+
+    function updateKPIs(data) {
+      const total = data.reduce((sum, r) => sum + r.qtd, 0);
+      const dentro = data.filter(r => r.prazo === "Dentro do prazo").reduce((sum, r) => sum + r.qtd, 0);
+      const fora = data.filter(r => r.prazo === "Fora do prazo").reduce((sum, r) => sum + r.qtd, 0);
+
+      const distinctAreas = new Set(data.map(r => r.area)).size;
+      const pct = (val) => total > 0 ? ((val / total) * 100).toFixed(1).replace(".", ",") + "%" : "0,0%";
+
+      document.getElementById("kpiTotal").textContent = total.toLocaleString("pt-BR");
+      document.getElementById("kpiTotalSub").textContent = `Distribuídas em ${distinctAreas} área(s) demandada(s)`;
+      document.getElementById("kpiTotalRef").textContent = "Base Consolidada";
+
+      document.getElementById("kpiDentro").textContent = dentro.toLocaleString("pt-BR");
+      document.getElementById("kpiDentroPct").textContent = pct(dentro);
+
+      document.getElementById("kpiFora").textContent = fora.toLocaleString("pt-BR");
+      document.getElementById("kpiForaPct").textContent = pct(fora);
+    }
+
+    function updateCharts(data) {
+      const areaMap = new Map();
+      const areaDentroMap = new Map();
+      const areaForaMap = new Map();
+      const areaTotalMap = new Map();
+      const assuntoMap = new Map();
+
+      let dentroCount = 0, foraCount = 0, semPrazoCount = 0;
+
+      data.forEach(r => {
+        areaMap.set(r.area, (areaMap.get(r.area) || 0) + r.qtd);
+        areaTotalMap.set(r.area, (areaTotalMap.get(r.area) || 0) + r.qtd);
+        assuntoMap.set(r.assunto, (assuntoMap.get(r.assunto) || 0) + r.qtd);
+
+        if (r.prazo === "Dentro do prazo") {
+          dentroCount += r.qtd;
+          areaDentroMap.set(r.area, (areaDentroMap.get(r.area) || 0) + r.qtd);
+        } else if (r.prazo === "Fora do prazo") {
+          foraCount += r.qtd;
+          areaForaMap.set(r.area, (areaForaMap.get(r.area) || 0) + r.qtd);
+        } else {
+          semPrazoCount += r.qtd;
+        }
+      });
+
+      const totalAll = data.reduce((s, r) => s + r.qtd, 0);
+      const pctOfTotal = (v) => totalAll > 0 ? ((v / totalAll) * 100).toFixed(1).replace(".", ",") : "0,0";
+
+      const topAreas = [...areaMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12);
+      const topAssuntos = [...assuntoMap.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10);
+      const top8Areas = topAreas.slice(0, 8).map(item => item[0]);
+
+      Object.values(charts).forEach(chart => chart && chart.destroy());
+
+      const commonFont = { family: "'Inter', sans-serif", size: 11 };
+      const labelFont = { family: "'Inter', sans-serif", size: 10, weight: '700' };
+
+      charts.areas = new Chart(document.getElementById("chartAreas"), {
+        type: "bar",
+        data: {
+          labels: topAreas.map(i => i[0]),
+          datasets: [{
+            label: "Total de Demandas",
+            data: topAreas.map(i => i[1]),
+            backgroundColor: "#157a44",
+            hoverBackgroundColor: "#0a4224",
+            borderRadius: 6,
+            barPercentage: 0.72
+          }]
         },
-        tooltip:{
-          backgroundColor:'#1b4332', padding:12, cornerRadius:10,
-          titleFont:{ size:12.5, weight:'700', family:'Inter' },
-          bodyFont:{ size:12.5, family:'Inter' },
-          callbacks:{
-            label: ctx => {
-              const total = ctx.dataset.data.reduce((s,v) => s+v, 0);
-              const pct = ((ctx.parsed/total)*100).toFixed(1).replace('.', ',');
-              return ` ${ctx.label}: ${ctx.parsed} demandas (${pct}%)`;
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { right: 90 } },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: "#052e16", padding: 10, cornerRadius: 8,
+              callbacks: { label: (ctx) => ` ${ctx.parsed.x} demandas (${pctOfTotal(ctx.parsed.x)}%)` }
+            },
+            datalabels: {
+              anchor: "end", align: "right", offset: 4, clip: false,
+              color: "#0f172a", font: labelFont,
+              formatter: (value) => `${value} (${pctOfTotal(value)}%)`
+            }
+          },
+          scales: {
+            x: { beginAtZero: true, grid: { color: "#e2e8f0" }, ticks: { font: commonFont, color: "#475569" } },
+            y: { grid: { display: false }, ticks: { font: { ...commonFont, weight: "600" }, color: "#0f172a" } }
+          }
+        }
+      });
+
+      charts.prazo = new Chart(document.getElementById("chartPrazo"), {
+        type: "doughnut",
+        data: {
+          labels: ["Dentro do prazo", "Fora do prazo", "Não informado"],
+          datasets: [{
+            data: [dentroCount, foraCount, semPrazoCount],
+            backgroundColor: ["#169452", "#dc2626", "#d97706"],
+            borderWidth: 3, borderColor: "#ffffff", hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false, cutout: "62%",
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: {
+                padding: 16, usePointStyle: true, pointStyle: "circle",
+                font: { family: "'Inter', sans-serif", size: 12, weight: "600" }
+              }
+            },
+            tooltip: {
+              backgroundColor: "#052e16", padding: 10, cornerRadius: 8,
+              callbacks: {
+                label: function(ctx) {
+                  const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                  const val = ctx.parsed;
+                  const pct = total > 0 ? ((val / total) * 100).toFixed(1) : "0.0";
+                  return ` ${ctx.label}: ${val} (${pct}%)`;
+                }
+              }
+            },
+            datalabels: {
+              color: "#ffffff", textAlign: "center",
+              font: { ...labelFont, size: 11 },
+              formatter: (value, ctx) => {
+                if (!value) return "";
+                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                const pct = total > 0 ? ((value / total) * 100).toFixed(1).replace(".", ",") : "0,0";
+                return `${value}\n(${pct}%)`;
+              }
             }
           }
+        }
+      });
+
+      charts.assuntos = new Chart(document.getElementById("chartAssuntos"), {
+        type: "bar",
+        data: {
+          labels: topAssuntos.map(i => truncateLabel(i[0], 34)),
+          datasets: [{
+            label: "Demandas",
+            data: topAssuntos.map(i => i[1]),
+            backgroundColor: "#22b065",
+            hoverBackgroundColor: "#0f5c33",
+            borderRadius: 6,
+            barPercentage: 0.72
+          }]
         },
-        datalabels:{
-          color:'#ffffff',
-          font:{ size:11, weight:'800', family:'Inter' },
-          textAlign:'center',
-          textShadowColor:'rgba(0,0,0,.45)', textShadowBlur:5,
-          formatter:(value, ctx) => {
-            const total = ctx.dataset.data.reduce((s,v) => s+v, 0);
-            const pct = ((value/total)*100).toFixed(1).replace('.', ',');
-            return `${value}\n${pct}%`;
+        options: {
+          indexAxis: "y",
+          responsive: true, maintainAspectRatio: false,
+          layout: { padding: { right: 90 } },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: "#052e16",
+              callbacks: {
+                title: (items) => topAssuntos[items[0].dataIndex][0],
+                label: (ctx) => ` ${ctx.parsed.x} demandas (${pctOfTotal(ctx.parsed.x)}%)`
+              }
+            },
+            datalabels: {
+              anchor: "end", align: "right", offset: 4, clip: false,
+              color: "#0f172a", font: labelFont,
+              formatter: (value) => `${value} (${pctOfTotal(value)}%)`
+            }
           },
-          display: ctx => {
-            const total = ctx.dataset.data.reduce((s,v) => s+v, 0);
-            return (ctx.dataset.data[ctx.dataIndex]/total)*100 >= 6;
+          scales: {
+            x: { beginAtZero: true, grid: { color: "#e2e8f0" }, ticks: { font: commonFont, color: "#475569" } },
+            y: { grid: { display: false }, ticks: { font: commonFont, color: "#0f172a" } }
           }
         }
+      });
+
+      charts.areaPrazo = new Chart(document.getElementById("chartAreaPrazo"), {
+        type: "bar",
+        data: {
+          labels: top8Areas,
+          datasets: [
+            {
+              label: "Dentro do prazo",
+              data: top8Areas.map(a => areaDentroMap.get(a) || 0),
+              backgroundColor: "#169452", borderRadius: 4
+            },
+            {
+              label: "Fora do prazo",
+              data: top8Areas.map(a => areaForaMap.get(a) || 0),
+              backgroundColor: "#dc2626", borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "bottom",
+              labels: { usePointStyle: true, pointStyle: "circle", font: commonFont }
+            },
+            tooltip: {
+              backgroundColor: "#052e16",
+              callbacks: {
+                label: (ctx) => {
+                  const areaName = top8Areas[ctx.dataIndex];
+                  const areaTotal = areaTotalMap.get(areaName) || 0;
+                  const pct = areaTotal > 0 ? ((ctx.parsed.y / areaTotal) * 100).toFixed(1) : "0.0";
+                  return ` ${ctx.dataset.label}: ${ctx.parsed.y} (${pct}%)`;
+                }
+              }
+            },
+            datalabels: {
+              color: "#ffffff", anchor: "center", align: "center",
+              font: { ...labelFont, size: 9 },
+              formatter: (value, ctx) => {
+                if (!value) return "";
+                const areaName = top8Areas[ctx.dataIndex];
+                const areaTotal = areaTotalMap.get(areaName) || 0;
+                const pct = areaTotal > 0 ? ((value / areaTotal) * 100).toFixed(0) : "0";
+                return `${value} (${pct}%)`;
+              }
+            }
+          },
+          scales: {
+            x: {
+              stacked: true, grid: { display: false },
+              ticks: { font: { size: 10 }, color: "#0f172a", maxRotation: 35, minRotation: 20 }
+            },
+            y: {
+              stacked: true, beginAtZero: true, grid: { color: "#e2e8f0" },
+              ticks: { font: commonFont, color: "#475569" }
+            }
+          }
+        }
+      });
+    }
+
+    // ------------------------------------------------------------------------
+    // 4. EXPORTAÇÃO PDF
+    // ------------------------------------------------------------------------
+    async function exportarPDF() {
+      const overlay = document.getElementById("pdfOverlay");
+      const noPrintEls = document.querySelectorAll(".no-print");
+
+      overlay.classList.add("active");
+
+      try {
+        noPrintEls.forEach(el => el.style.display = "none");
+        await new Promise(resolve => setTimeout(resolve, 150));
+
+        const targetElement = document.getElementById("dashboardReportArea");
+        const canvas = await html2canvas(targetElement, {
+          scale: 2, useCORS: true, allowTaint: true,
+          backgroundColor: "#f3f8f5", logging: false
+        });
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF("p", "mm", "a4");
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const margin = 8;
+
+        const imgWidth = pageWidth - margin * 2;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        const imgData = canvas.toDataURL("image/png");
+
+        let heightLeft = imgHeight;
+        let position = margin;
+
+        pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+        heightLeft -= (pageHeight - margin * 2);
+
+        while (heightLeft > 0) {
+          position = heightLeft - imgHeight + margin;
+          pdf.addPage();
+          pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+          heightLeft -= (pageHeight - margin * 2);
+        }
+
+        const dateStamp = new Date().toISOString().slice(0, 10);
+        pdf.save(`Relatorio_Demandas_IPASGO_${dateStamp}.pdf`);
+      } catch (error) {
+        console.error("Erro ao gerar PDF via canvas:", error);
+        alert("Não foi possível gerar o PDF diretamente. Abrindo visualização de impressão para salvar em PDF.");
+        window.print();
+      } finally {
+        noPrintEls.forEach(el => el.style.display = "");
+        overlay.classList.remove("active");
       }
     }
-  });
-}
 
-function buildBar(canvasId, minYWidth = 0){
-  return new Chart($(canvasId).getContext('2d'), {
-    type:'bar',
-    data:{ labels:[], datasets:[{
-      data:[], backgroundColor:'#2d6a4f', hoverBackgroundColor:'#1b4332',
-      borderRadius:7, borderSkipped:false, maxBarThickness:26
-    }]},
-    options:{
-      indexAxis:'y',
-      responsive:true, maintainAspectRatio:false,
-      layout:{ padding:{ right:44, left:18, top:6 } },
-      animation:{ duration:800, easing:'easeOutQuart' },
-      plugins:{
-        legend:{ display:false },
-        tooltip:{
-          backgroundColor:'#1b4332', padding:12, cornerRadius:10,
-          titleFont:{ size:12.5, weight:'700', family:'Inter' },
-          bodyFont:{ size:12.5, family:'Inter' },
-          callbacks:{ label: ctx => ` ${ctx.parsed.x} demandas` }
-        },
-        datalabels:{
-          anchor:'end', align:'right', offset:4, clamp:true,
-          color:'#1b4332',
-          font:{ size:11.5, weight:'800', family:'Inter' },
-          formatter: v => v
-        }
-      },
-      scales:{
-        x:{
-          beginAtZero:true,
-          grid:{ color:'#eaf3ec', drawBorder:false },
-          ticks:{ color:'#6b8a79', font:{ size:11, family:'Inter' }, precision:0 },
-          border:{ display:false }, grace:'14%'
-        },
-        y:{
-          afterFit: scale => { if (minYWidth > 0 && scale.width < minYWidth) scale.width = minYWidth; },
-          grid:{ display:false },
-          ticks:{ autoSkip:false, padding:6, color:'#3a5a48',
-                  font:{ size:11, weight:'700', family:'Inter' } },
-          border:{ display:false }
-        }
-      }
+    // ------------------------------------------------------------------------
+    // 5. UTILITÁRIOS E INICIALIZAÇÃO
+    // ------------------------------------------------------------------------
+    function truncateLabel(str, max) {
+      return str.length > max ? str.slice(0, max - 1) + "…" : str;
     }
-  });
-}
 
-function updateDoughnut(chart, items){
-  chart.data.labels = items.map(i => i.item);
-  chart.data.datasets[0].data = items.map(i => i.qtd);
-  chart.update();
-}
+    (function init() {
+      const now = new Date();
+      document.getElementById("reportGeneratedAt").textContent =
+        "Emitido em " + now.toLocaleDateString("pt-BR") + " às " + now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
-function updateBar(chart, items){
-  chart.data.labels = items.map(i => i.item);
-  chart.data.datasets[0].data = items.map(i => i.qtd);
-  chart.update();
-}
-
-function initCharts(){
-  charts.chartTema    = buildDoughnut('chartTema',
-    ['#1b4332','#2d6a4f','#40916c','#52b788','#95d5b2']);
-  charts.chartTipo    = buildDoughnut('chartTipo',
-    ['#1b4332','#40916c','#52b788','#b7e4c7']);
-  charts.chartArea    = buildBar('chartArea');
-  charts.chartMeio    = buildBar('chartMeio', 135);
-  charts.chartAssunto = buildBar('chartAssunto');
-}
-
-function refreshChartForTab(tabKey){
-  const cfg = TABS[tabKey];
-  if (!cfg.chart) return;
-  const f = state.filters[tabKey];
-  const items = CROSSTABS[tabKey].data[f] || CROSSTABS[tabKey].data['Todos'];
-  if (cfg.chart === 'chartTema' || cfg.chart === 'chartTipo'){
-    updateDoughnut(charts[cfg.chart], items);
-  } else {
-    updateBar(charts[cfg.chart], items);
-  }
-}
-
-function renderFilter(tabKey){
-  const ct = CROSSTABS[tabKey];
-  $('filterLabelText').textContent = `Filtrar por ${ct.filterLabel}:`;
-  const sel = $('filterSelect');
-  const current = state.filters[tabKey];
-  sel.innerHTML = ct.options.map(o => `<option value="${o}"${o===current?' selected':''}>${o}</option>`).join('');
-}
-
-function renderTable(tabKey){
-  const cfg = TABS[tabKey];
-  const ct = CROSSTABS[tabKey];
-  const f = state.filters[tabKey];
-  const items = (ct.data[f] || ct.data['Todos']).filter(i => i.qtd > 0);
-  const total = items.reduce((s,i) => s + i.qtd, 0) || 1;
-  const max = Math.max(...items.map(i => i.qtd), 1);
-
-  $('th-item').textContent = cfg.label;
-
-  if (!items.length){
-    $('tableBody').innerHTML = `<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--muted)">Nenhuma demanda encontrada com o filtro aplicado.</td></tr>`;
-  } else {
-    const rows = items.map(({item, qtd}) => {
-      const pct = ((qtd/total)*100);
-      const w = (qtd/max)*100;
-      return `<tr>
-        <td class="item">${item}</td>
-        <td class="num m2">${qtd}</td>
-        <td class="num">${fmtPct(pct)}</td>
-        <td class="dist">
-          <div class="bar-cell">
-            <div class="bar-track"><div class="bar-fill" style="width:${w}%"></div></div>
-            <span class="bar-pct">${fmtPct(pct)}</span>
-          </div>
-        </td>
-      </tr>`;
-    }).join('');
-    const totalRow = `<tr class="total-row">
-      <td class="item">Total</td>
-      <td class="num m2">${total}</td>
-      <td class="num">100,0%</td>
-      <td></td>
-    </tr>`;
-    $('tableBody').innerHTML = rows + totalRow;
-  }
-
-  $('tableNote').textContent = cfg.note;
-  if (window.lucide) lucide.createIcons();
-}
-
-document.getElementById('tabs').addEventListener('click', e => {
-  const btn = e.target.closest('.tab');
-  if (!btn) return;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  state.activeTab = btn.dataset.key;
-  renderFilter(state.activeTab);
-  renderTable(state.activeTab);
-  refreshChartForTab(state.activeTab);
-});
-
-document.getElementById('filterSelect').addEventListener('change', e => {
-  state.filters[state.activeTab] = e.target.value;
-  renderTable(state.activeTab);
-  refreshChartForTab(state.activeTab);
-});
-
-document.getElementById('filterReset').addEventListener('click', () => {
-  state.filters[state.activeTab] = 'Todos';
-  document.getElementById('filterSelect').value = 'Todos';
-  renderTable(state.activeTab);
-  refreshChartForTab(state.activeTab);
-});
-initCharts();
-updateDoughnut(charts.chartTema,    DADOS.temas);
-updateDoughnut(charts.chartTipo,    DADOS.tipos);
-updateBar(charts.chartArea,         DADOS.areas.filter(a => a.qtd > 0));
-updateBar(charts.chartMeio,         DADOS.meios.filter(a => a.qtd > 0));
-updateBar(charts.chartAssunto,      DADOS.assuntos.filter(a => a.qtd > 0));
-
-renderFilter('temas');
-renderTable('temas');
-
-if (window.lucide) lucide.createIcons();
-</script>
+      processedRecords = processDataset(DEFAULT_RAW_ROWS);
+      applyFilters();
+    })();
+  </script>
 </body>
 </html>
